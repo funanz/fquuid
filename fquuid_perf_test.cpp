@@ -61,35 +61,26 @@ private:
     void print(const Duration& elapsed, uint_fast64_t count) const {
         std::chrono::hh_mm_ss hms(elapsed);
         std::cout << std::setfill(' ') << std::setw(2)
-                  << hms.minutes().count()
-                  << ":"
+                  << hms.minutes().count() << ":"
                   << std::setfill('0') << std::setw(2)
-                  << hms.seconds().count()
-                  << "."
+                  << hms.seconds().count() << "."
                   << std::setfill('0') << std::setw(9)
                   << hms.subseconds().count()
                   << "\t";
 
-        auto sec = to_sec(elapsed);
-        auto [scaled_count_sec, prefix] = si_prefix(count / sec);
+        auto [scaled_ops, prefix] = si_prefix(count / to_sec(elapsed));
         std::cout << std::setfill(' ') << std::setw(6)
                   << std::fixed << std::setprecision(2)
-                  << scaled_count_sec << " " << prefix << " op/s"
+                  << scaled_ops << " "
+                  << std::setfill(' ') << std::setw(1)
+                  << prefix << " op/s"
                   << "\t";
 
         std::cout << name_ << std::endl << std::flush;
     }
 
-    template <class Float>
-    requires (std::is_floating_point_v<Float>)
+    template <std::floating_point Float>
     static std::tuple<Float, std::string> si_prefix(Float value) {
-        static constexpr const char* prefixes_array[] = {
-            "", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q",
-        };
-        static constexpr auto prefixes = std::span(prefixes_array);
-        static constexpr auto prefixes_without_last = prefixes.first(prefixes.size() - 1);
-        static constexpr auto prefixes_last = prefixes.back();
-
         auto scaled_value = value;
         for (auto prefix : prefixes_without_last) {
             if (scaled_value + 0.5 < 1000)
@@ -97,9 +88,15 @@ private:
 
             scaled_value /= 1000;
         }
-
         return {scaled_value, prefixes_last};
     }
+
+    static constexpr const char* prefixes_array[] = {
+        "", "k", "M", "G", "T", "P", "E", "Z", "Y", "R", "Q",
+    };
+    static constexpr auto prefixes = std::span(prefixes_array);
+    static constexpr auto prefixes_without_last = prefixes.first(prefixes.size() - 1);
+    static constexpr auto prefixes_last = prefixes.back();
 };
 
 static void test_parse()
