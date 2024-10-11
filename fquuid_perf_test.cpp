@@ -60,17 +60,24 @@ private:
     template <class Duration>
     void print(const Duration& elapsed, uint_fast64_t count) const {
         std::chrono::hh_mm_ss hms(elapsed);
-        printf("%2ld:%02lld.%09lld",
-               hms.minutes().count(),
-               hms.seconds().count(),
-               hms.subseconds().count());
+        std::cout << std::setfill(' ') << std::setw(2)
+                  << hms.minutes().count()
+                  << ":"
+                  << std::setfill('0') << std::setw(2)
+                  << hms.seconds().count()
+                  << "."
+                  << std::setfill('0') << std::setw(9)
+                  << hms.subseconds().count()
+                  << "\t";
 
         auto sec = to_sec(elapsed);
         auto [scaled_count_sec, prefix] = si_prefix(count / sec);
-        printf("\t%6.2f %s op/s", scaled_count_sec, prefix.c_str());
+        std::cout << std::setfill(' ') << std::setw(6)
+                  << std::fixed << std::setprecision(2)
+                  << scaled_count_sec << " " << prefix << " op/s"
+                  << "\t";
 
-        printf("\t%s\n", name_.c_str());
-        fflush(stdout);
+        std::cout << name_ << std::endl << std::flush;
     }
 
     template <class Float>

@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <compare>
-#include <cstdio>
+#include <iostream>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -264,11 +264,11 @@ int main(int argc, char** argv)
         test_string_error();
         test_map();
 
-        puts("All tests successful");
+        std::cout << "All tests successful" << std::endl;
         return 0;
     }
     catch (std::exception& e) {
-        puts(e.what());
+        std::cout << e.what() << std::endl;
         return 1;
     }
 }
