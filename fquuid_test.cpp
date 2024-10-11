@@ -15,10 +15,11 @@ using namespace fquuid;
 static void test_zero()
 {
     constexpr uuid a;
-    uuid b;
+    constexpr uuid b {"d604557f-6739-4883-b627-bc0a81b84e97"};
 
-    runtime_assert(a.to_string() == "00000000-0000-0000-0000-000000000000", "test_zero() #1");
-    runtime_assert(b.to_string() == "00000000-0000-0000-0000-000000000000", "test_zero() #2");
+    static_assert(a.is_zero(), "test_zero() #1");
+    static_assert(!b.is_zero(), "test_zero() #2");
+    runtime_assert(a.to_string() == "00000000-0000-0000-0000-000000000000", "test_zero() #3");
 }
 
 static void test_compare()

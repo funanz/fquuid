@@ -81,6 +81,10 @@ namespace fquuid
             return u_ <=> r.u_;
         }
 
+        constexpr bool is_zero() const {
+            return u_[0] == 0 && u_[1] == 0;
+        }
+
         constexpr uint8_t get_version() const {
             return (u_[0] >> 12) & 0xf;
         }
