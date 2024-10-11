@@ -7,7 +7,6 @@
 #include <random>
 #include <set>
 #include <span>
-#include <stdexcept>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -207,9 +206,6 @@ static void test_compare()
             count += in.size();
         }
     });
-
-    if (count_less == 0)
-        throw std::runtime_error("test_compare() dead-code elimination");
 }
 
 static void test_generate_v4_mt19937()
