@@ -98,255 +98,261 @@ private:
     static constexpr auto prefixes_last = prefixes.back();
 };
 
-static void test_parse()
+template <class UuidImpl>
+class uuid_perf_test
 {
-    std::mt19937 rng; // [INSECURE] for performance test
+    using uuid_t = UuidImpl::uuid_type;
+    using array_t = UuidImpl::array_type;
 
-    std::vector<std::string> in;
-    for (int i = 0; i < 1'000'000; i++)
-        in.push_back(fquuid::uuid::v4(rng).to_string());
+    UuidImpl impl;
 
-    std::vector<fquuid::uuid> out{in.size()};
+    void test_parse() {
+        std::vector<std::string> in;
+        for (int i = 0; i < 1'000'000; i++)
+            in.push_back(impl.to_string(impl.gen_v4_mt()));
 
-    ops_measure ops{"parse", measure_time_short};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (size_t i = 0; i < in.size(); i++)
-                out[i] = fquuid::uuid{in[i]};
+        std::vector<uuid_t> out{in.size()};
 
-            count += in.size();
-        }
-    });
-}
+        ops_measure ops{"parse", measure_time_short};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (size_t i = 0; i < in.size(); i++)
+                    out[i] = impl.parse(in[i]);
 
-static void test_to_string()
-{
-    std::mt19937 rng; // [INSECURE] for performance test
-
-    std::vector<fquuid::uuid> in;
-    for (int i = 0; i < 1'000'000; i++)
-        in.push_back(fquuid::uuid::v4(rng));
-
-    std::vector<std::string> out{in.size()};
-
-    ops_measure ops{"to string", measure_time_short};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (size_t i = 0; i < in.size(); i++)
-                out[i] = in[i].to_string();
-
-            count += in.size();
-        }
-    });
-}
-
-static void test_load_bytes()
-{
-    std::mt19937 rng; // [INSECURE] for performance test
-
-    std::vector<std::array<uint8_t, 16>> in;
-    for (int i = 0; i < 1'000'000; i++) {
-        std::array<uint8_t, 16> a;
-        fquuid::uuid::v4(rng).to_bytes(a);
-        in.push_back(a);
+                count += in.size();
+            }
+        });
     }
 
-    std::vector<fquuid::uuid> out{in.size()};
+    void test_to_string() {
+        std::vector<uuid_t> in;
+        for (int i = 0; i < 1'000'000; i++)
+            in.push_back(impl.gen_v4_mt());
 
-    ops_measure ops{"load bytes", measure_time_short};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (size_t i = 0; i < in.size(); i++)
-                out[i] = fquuid::uuid{in[i]};
+        std::vector<std::string> out{in.size()};
 
-            count += in.size();
-        }
-    });
-}
+        ops_measure ops{"to string", measure_time_short};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (size_t i = 0; i < in.size(); i++)
+                    out[i] = impl.to_string(in[i]);
 
-static void test_to_bytes()
-{
-    std::mt19937 rng; // [INSECURE] for performance test
-
-    std::vector<fquuid::uuid> in;
-    for (int i = 0; i < 1'000'000; i++)
-        in.push_back(fquuid::uuid::v4(rng));
-
-    std::vector<std::array<uint8_t, 16>> out{in.size()};
-
-    ops_measure ops{"to bytes", measure_time_short};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (size_t i = 0; i < in.size(); i++)
-                in[i].to_bytes(out[i]);
-
-            count += in.size();
-        }
-    });
-}
-
-static void test_compare()
-{
-    std::mt19937 rng; // [INSECURE] for performance test
-
-    std::vector<fquuid::uuid> in;
-    for (int i = 0; i < 1'000'000; i++)
-        in.push_back(fquuid::uuid::v4(rng));
-
-    auto lhs = fquuid::uuid::v4(rng);
-    uint_fast64_t count_less = 0;
-
-    ops_measure ops{"compare", measure_time_short};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (auto& rhs : in) {
-                if (lhs < rhs)
-                    count_less++;
+                count += in.size();
             }
-            count += in.size();
-        }
-    });
-}
+        });
+    }
 
-static void test_generate_v4_mt19937()
+    void test_load_bytes() {
+        std::vector<array_t> in;
+        for (int i = 0; i < 1'000'000; i++) {
+            array_t a;
+            impl.to_bytes(impl.gen_v4_mt(), a);
+            in.push_back(a);
+        }
+
+        std::vector<uuid_t> out{in.size()};
+
+        ops_measure ops{"load bytes", measure_time_short};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (size_t i = 0; i < in.size(); i++)
+                    out[i] = impl.load_bytes(in[i]);
+
+                count += in.size();
+            }
+        });
+    }
+
+    void test_to_bytes() {
+        std::vector<uuid_t> in;
+        for (int i = 0; i < 1'000'000; i++)
+            in.push_back(impl.gen_v4_mt());
+
+        std::vector<array_t> out{in.size()};
+
+        ops_measure ops{"to bytes", measure_time_short};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (size_t i = 0; i < in.size(); i++)
+                    impl.to_bytes(in[i], out[i]);
+
+                count += in.size();
+            }
+        });
+    }
+
+    void test_compare() {
+        std::vector<uuid_t> in;
+        for (int i = 0; i < 1'000'000; i++)
+            in.push_back(impl.gen_v4_mt());
+
+        auto lhs = impl.gen_v4_mt();
+        uint_fast64_t count_less = 0;
+
+        ops_measure ops{"compare", measure_time_short};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (auto& rhs : in) {
+                    if (lhs < rhs)
+                        count_less++;
+                }
+                count += in.size();
+            }
+        });
+    }
+
+    void test_generate_v4_mt19937() {
+        std::vector<uuid_t> out{1'000'000};
+
+        ops_measure ops{"generate v4 (mt19937)", measure_time_short};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (auto& u : out)
+                    u = impl.gen_v4_mt();
+
+                count += out.size();
+            }
+        });
+    }
+
+    void test_generate_v7_mt19937() {
+        std::vector<uuid_t> out{1'000'000};
+
+        ops_measure ops{"generate v7 (mt19937)", measure_time_short};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (auto& u : out)
+                    u = impl.gen_v7_mt();
+
+                count += out.size();
+            }
+        });
+    }
+
+    void test_generate_v4() {
+        std::vector<uuid_t> out{100'000};
+
+        ops_measure ops{"generate v4 (default)", measure_time_short};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (auto& u : out)
+                    u = impl.gen_v4();
+
+                count += out.size();
+            }
+        });
+    }
+
+    void test_generate_v7() {
+        std::vector<uuid_t> out{100'000};
+
+        ops_measure ops{"generate v7 (default)", measure_time_short};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (auto& u : out)
+                    u = impl.gen_v7();
+
+                count += out.size();
+            }
+        });
+    }
+
+    void test_generate_v4_set() {
+        std::set<uuid_t> set;
+        constexpr int iteration = 100'000;
+
+        ops_measure ops{"generate v4 (default, std::set)", measure_time_long};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (int i = 0; i < iteration; i++)
+                    set.insert(impl.gen_v4());
+
+                count += iteration;
+            }
+        });
+    }
+
+    void test_generate_v7_set() {
+        std::set<uuid_t> set;
+        constexpr int iteration = 100'000;
+
+        ops_measure ops{"generate v7 (default, std::set)", measure_time_long};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (int i = 0; i < iteration; i++)
+                    set.insert(impl.gen_v7());
+
+                count += iteration;
+            }
+        });
+    }
+
+    void test_generate_v4_unordered_set() {
+        std::unordered_set<uuid_t> set;
+        constexpr int iteration = 100'000;
+
+        ops_measure ops{"generate v4 (default, std::unordered_set)", measure_time_long};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (int i = 0; i < iteration; i++)
+                    set.insert(impl.gen_v4());
+
+                count += iteration;
+            }
+        });
+    }
+
+    void test_generate_v7_unordered_set() {
+        std::unordered_set<uuid_t> set;
+        constexpr int iteration = 100'000;
+
+        ops_measure ops{"generate v7 (default, std::unordered_set)", measure_time_long};
+        ops.measure([&](auto token, auto& count) {
+            while (!token.stop_requested()) {
+                for (int i = 0; i < iteration; i++)
+                    set.insert(impl.gen_v7());
+
+                count += iteration;
+            }
+        });
+    }
+public:
+    void run() {
+        test_parse();
+        test_to_string();
+        test_load_bytes();
+        test_to_bytes();
+        test_compare();
+        test_generate_v4_mt19937();
+        test_generate_v7_mt19937();
+        test_generate_v4();
+        test_generate_v7();
+        test_generate_v4_set();
+        test_generate_v7_set();
+        test_generate_v4_unordered_set();
+        test_generate_v7_unordered_set();
+    }
+};
+
+class fquuid_impl
 {
-    std::mt19937 rng; // [INSECURE] for performance test
-    std::vector<fquuid::uuid> out{1'000'000};
+    std::mt19937 mt; // [INSECURE] for performance test
+public:
+    using uuid_type = fquuid::uuid;
+    using array_type = std::array<uint8_t, 16>;
 
-    ops_measure ops{"generate v4 (mt19937)", measure_time_short};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (auto& u : out)
-                u = fquuid::uuid::v4(rng);
-
-            count += out.size();
-        }
-    });
-}
-
-static void test_generate_v7_mt19937()
-{
-    std::mt19937 rng; // [INSECURE] for performance test
-    std::vector<fquuid::uuid> out{1'000'000};
-
-    ops_measure ops{"generate v7 (mt19937)", measure_time_short};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (auto& u : out)
-                u = fquuid::uuid::v7(rng);
-
-            count += out.size();
-        }
-    });
-}
-
-static void test_generate_v4()
-{
-    std::vector<fquuid::uuid> out{100'000};
-
-    ops_measure ops{"generate v4 (default)", measure_time_short};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (auto& u : out)
-                u = fquuid::uuid::v4();
-
-            count += out.size();
-        }
-    });
-}
-
-static void test_generate_v7()
-{
-    std::vector<fquuid::uuid> out{100'000};
-
-    ops_measure ops{"generate v7 (default)", measure_time_short};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (auto& u : out)
-                u = fquuid::uuid::v7();
-
-            count += out.size();
-        }
-    });
-}
-
-static void test_generate_v4_set()
-{
-    std::set<fquuid::uuid> set;
-    constexpr int iteration = 100'000;
-
-    ops_measure ops{"generate v4 (default, std::set)", measure_time_long};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (int i = 0; i < iteration; i++)
-                set.insert(fquuid::uuid::v4());
-
-            count += iteration;
-        }
-    });
-}
-
-static void test_generate_v7_set()
-{
-    std::set<fquuid::uuid> set;
-    constexpr int iteration = 100'000;
-
-    ops_measure ops{"generate v7 (default, std::set)", measure_time_long};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (int i = 0; i < iteration; i++)
-                set.insert(fquuid::uuid::v7());
-
-            count += iteration;
-        }
-    });
-}
-
-static void test_generate_v4_unordered_set()
-{
-    std::unordered_set<fquuid::uuid> set;
-    constexpr int iteration = 100'000;
-
-    ops_measure ops{"generate v4 (default, std::unordered_set)", measure_time_long};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (int i = 0; i < iteration; i++)
-                set.insert(fquuid::uuid::v4());
-
-            count += iteration;
-        }
-    });
-}
-
-static void test_generate_v7_unordered_set()
-{
-    std::unordered_set<fquuid::uuid> set;
-    constexpr int iteration = 100'000;
-
-    ops_measure ops{"generate v7 (default, std::unordered_set)", measure_time_long};
-    ops.measure([&](auto token, auto& count) {
-        while (!token.stop_requested()) {
-            for (int i = 0; i < iteration; i++)
-                set.insert(fquuid::uuid::v7());
-
-            count += iteration;
-        }
-    });
-}
+    uuid_type gen_v4() { return uuid_type::v4(); }
+    uuid_type gen_v7() { return uuid_type::v7(); }
+    uuid_type gen_v4_mt() { return uuid_type::v4(mt); }
+    uuid_type gen_v7_mt() { return uuid_type::v7(mt); }
+    uuid_type parse(const std::string& s) { return uuid_type{s}; }
+    std::string to_string(const uuid_type& u) { return u.to_string(); }
+    uuid_type load_bytes(const array_type& a) { return uuid_type{a}; }
+    void to_bytes(const uuid_type& u, array_type& a) { u.to_bytes(a); }
+};
 
 int main(int argc, char** argv)
 {
-    test_parse();
-    test_to_string();
-    test_load_bytes();
-    test_to_bytes();
-    test_compare();
-    test_generate_v4_mt19937();
-    test_generate_v7_mt19937();
-    test_generate_v4();
-    test_generate_v7();
-    test_generate_v4_set();
-    test_generate_v7_set();
-    test_generate_v4_unordered_set();
-    test_generate_v7_unordered_set();
+    uuid_perf_test<fquuid_impl> upt;
+    upt.run();
 }
