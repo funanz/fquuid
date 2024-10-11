@@ -227,30 +227,41 @@ namespace fquuid
                 uint64_t x = 0;
                 for (size_t i = 0; i < s.size(); i += 2) {
                     x <<= 8;
-                    x |= hex_to_u8(s[i]) << 4 | hex_to_u8(s[i + 1]);
+                    x |= hex_to_u4(s[i]) << 4 | hex_to_u4(s[i + 1]);
                 }
                 return x;
             }
 
             static constexpr void store_u64_hex(uint64_t x, std::span<char> s) {
-                constexpr auto table = "0123456789abcdef";
+                constexpr auto u4_to_hex_table = "0123456789abcdef";
 
                 for (auto& c : s | std::views::reverse) {
-                    c = table[x & 0xf];
+                    c = u4_to_hex_table[x & 0xf];
                     x >>= 4;
                 }
             }
 
-            static constexpr uint8_t hex_to_u8(char c) {
-                if ('0' <= c && c <= '9')
-                    return c - '0';
-                else if ('A' <= c && c <= 'F')
-                    return c - 'A' + 10;
-                else if ('a' <= c && c <= 'f')
-                    return c - 'a' + 10;
-                else
+            static constexpr uint8_t hex_to_u4(char c) {
+                auto n = hex_to_u4_table[static_cast<size_t>(c) & 0xff];
+                if (n == 0xff)
                     throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
+                return n;
             }
+
+            static constexpr auto hex_to_u4_table = [] {
+                std::array<uint8_t, 256> a;
+                for (size_t i = 0; i < a.size(); i++) {
+                    if ('0' <= i && i <= '9')
+                        a[i] =  i - '0';
+                    else if ('A' <= i && i <= 'F')
+                        a[i] =  i - 'A' + 10;
+                    else if ('a' <= i && i <= 'f')
+                        a[i] =  i - 'a' + 10;
+                    else
+                        a[i] = 0xff;
+                }
+                return a;
+            }();
         };
 
         class uuid_bytes {
