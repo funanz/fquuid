@@ -211,7 +211,7 @@ namespace fquuid
                 if (s.size() < Bit / 4)
                     throw std::invalid_argument("uuid::load_hex() span size is small");
 
-                constexpr int Adj = 16 - Bit / 4;
+                constexpr size_t Adj = 16 - Bit / 4;
                 uint64_t x = 0;
                 if constexpr (Bit == 64) {
                     x |= (hex_to_u4(s[0 - Adj]) << 60 |
@@ -252,7 +252,7 @@ namespace fquuid
                 if (s.size() < Bit / 4)
                     throw std::invalid_argument("uuid::store_hex() span size is small");
 
-                constexpr int Adj = 16 - Bit / 4;
+                constexpr size_t Adj = 16 - Bit / 4;
                 if constexpr (Bit == 64) {
                     s[0 - Adj] = u4_to_hex(x >> 60);
                     s[1 - Adj] = u4_to_hex(x >> 56);
