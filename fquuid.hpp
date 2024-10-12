@@ -288,19 +288,25 @@ namespace fquuid
 
         private:
             static constexpr uint64_t load_u64(std::span<const uint8_t> bytes) {
-                uint64_t x = 0;
-                for (auto b : bytes) {
-                    x <<= 8;
-                    x |= b;
-                }
-                return x;
+                return (static_cast<uint64_t>(bytes[0]) << 56 |
+                        static_cast<uint64_t>(bytes[1]) << 48 |
+                        static_cast<uint64_t>(bytes[2]) << 40 |
+                        static_cast<uint64_t>(bytes[3]) << 32 |
+                        static_cast<uint64_t>(bytes[4]) << 24 |
+                        static_cast<uint64_t>(bytes[5]) << 16 |
+                        static_cast<uint64_t>(bytes[6]) << 8 |
+                        static_cast<uint64_t>(bytes[7]));
             }
 
             static constexpr void store_u64(uint64_t x, std::span<uint8_t> bytes) {
-                for (auto& b : bytes | std::views::reverse) {
-                    b = static_cast<uint8_t>(x);
-                    x >>= 8;
-                }
+                bytes[0] = static_cast<uint8_t>(x >> 56);
+                bytes[1] = static_cast<uint8_t>(x >> 48);
+                bytes[2] = static_cast<uint8_t>(x >> 40);
+                bytes[3] = static_cast<uint8_t>(x >> 32);
+                bytes[4] = static_cast<uint8_t>(x >> 24);
+                bytes[5] = static_cast<uint8_t>(x >> 16);
+                bytes[6] = static_cast<uint8_t>(x >> 8);
+                bytes[7] = static_cast<uint8_t>(x);
             }
         };
     };
