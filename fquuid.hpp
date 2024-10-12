@@ -118,7 +118,8 @@ namespace fquuid
     private:
         explicit uuid(const uuid_array& u) noexcept : u_(u) {}
 
-        class uuid_generator {
+        class uuid_generator
+        {
         public:
             template <class RNG>
             static uuid v4(RNG& rng) {
@@ -174,7 +175,8 @@ namespace fquuid
             }
         };
 
-        class uuid_parser {
+        class uuid_parser
+        {
             template <int Bit>
             requires (Bit == 64 || Bit == 48 || Bit == 32 ||Bit == 16)
             static constexpr uint64_t load_hex(std::span<const char> s) {
@@ -316,7 +318,8 @@ namespace fquuid
             }
         };
 
-        class uuid_bytes {
+        class uuid_bytes
+        {
         public:
             static constexpr void load_from_bytes(uuid_array& u, std::span<const uint8_t> bytes) {
                 if (bytes.size() < 16)
