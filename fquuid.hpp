@@ -47,7 +47,7 @@ namespace fquuid
             return uuid_generator::v7(rng, ms);
         }
 
-        constexpr uuid() : u_{} {}
+        constexpr uuid() noexcept : u_{} {}
 
         constexpr explicit uuid(std::span<const char> s) {
             uuid_parser::parse(u_, s);
@@ -69,23 +69,23 @@ namespace fquuid
             uuid_bytes::load_from_bytes(u_, bytes);
         }
 
-        constexpr bool operator ==(const uuid& r) const {
+        constexpr bool operator ==(const uuid& r) const noexcept {
             return u_ == r.u_;
         }
 
-        constexpr bool operator !=(const uuid& r) const {
+        constexpr bool operator !=(const uuid& r) const noexcept {
             return u_ != r.u_;
         }
 
-        constexpr auto operator <=>(const uuid& r) const {
+        constexpr auto operator <=>(const uuid& r) const noexcept {
             return u_ <=> r.u_;
         }
 
-        constexpr bool is_zero() const {
+        constexpr bool is_zero() const noexcept {
             return u_[0] == 0 && u_[1] == 0;
         }
 
-        constexpr uint8_t get_version() const {
+        constexpr uint8_t get_version() const noexcept {
             return (u_[0] >> 12) & 0xf;
         }
 
@@ -109,14 +109,14 @@ namespace fquuid
             uuid_bytes::store_to_bytes(u_, bytes);
         }
 
-        size_t hash() const {
+        size_t hash() const noexcept {
             std::hash<uint64_t> h;
 
             return h(u_[0]) ^ h(u_[1]);
         }
 
     private:
-        explicit uuid(const uuid_array& u) : u_(u) {}
+        explicit uuid(const uuid_array& u) noexcept : u_(u) {}
 
         class uuid_generator {
         public:
@@ -312,7 +312,7 @@ namespace std
     class hash<fquuid::uuid>
     {
     public:
-        size_t operator()(const fquuid::uuid& u) const {
+        size_t operator()(const fquuid::uuid& u) const noexcept {
             return u.hash();
         }
     };
