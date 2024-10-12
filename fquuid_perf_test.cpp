@@ -7,6 +7,7 @@
 #include <random>
 #include <set>
 #include <span>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <tuple>
@@ -199,6 +200,9 @@ class uuid_perf_test
                 count += in.size();
             }
         });
+
+        if (count_less == 0)
+            throw std::runtime_error("test_compare() count error");
     }
 
     void test_generate_v4_mt19937() {
