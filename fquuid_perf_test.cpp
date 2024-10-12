@@ -202,7 +202,7 @@ class uuid_perf_test
         });
 
         if (count_less == 0)
-            throw std::runtime_error("test_compare() count error");
+            throw std::runtime_error("Compare count error");
     }
 
     void test_generate_v4_mt19937() {
