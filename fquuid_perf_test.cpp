@@ -2,6 +2,7 @@
 #include <chrono>
 #include <concepts>
 #include <cstdint>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <random>
@@ -17,6 +18,8 @@
 
 class ops_measure
 {
+    using clock = std::chrono::high_resolution_clock;
+
     std::string name_;
     double time_;
 
@@ -27,13 +30,19 @@ public:
         : name_(name), time_(time) {}
 
     void measure(measure_fn fn) const {
-        using clock = std::chrono::high_resolution_clock;
-
         uint_fast64_t count = 0;
-        std::jthread jt{fn, std::ref(count)};
+        std::exception_ptr thread_exception;
+        std::jthread jt {[&] (auto token) {
+            try {
+                fn(token, count);
+            }
+            catch (...) {
+                thread_exception = std::current_exception();
+            }
+        }};
         auto begin = clock::now();
 
-        for (;;) {
+        while (!thread_exception) {
             auto sec = to_sec(clock::now() - begin);
             if (sec >= time_)
                 break;
@@ -45,6 +54,9 @@ public:
         auto end = clock::now();
 
         print(end - begin, count);
+
+        if (thread_exception)
+            std::rethrow_exception(thread_exception);
     }
 
 private:
@@ -271,7 +283,7 @@ class uuid_perf_test
                 for (int i = 0; i < iteration; i++) {
                     auto [it, ok] = set.insert(impl.gen_v4());
                     if (!ok)
-                        throw::std::runtime_error("UUID collision detected. Please check the random number generation.");
+                        throw std::runtime_error("UUID collision detected. Please check the random number generation.");
                 }
 
                 count += iteration;
@@ -289,7 +301,7 @@ class uuid_perf_test
                 for (int i = 0; i < iteration; i++) {
                     auto [it, ok] = set.insert(impl.gen_v7());
                     if (!ok)
-                        throw::std::runtime_error("UUID collision detected. Please check the random number generation.");
+                        throw std::runtime_error("UUID collision detected. Please check the random number generation.");
                 }
 
                 count += iteration;
@@ -307,7 +319,7 @@ class uuid_perf_test
                 for (int i = 0; i < iteration; i++) {
                     auto [it, ok] = set.insert(impl.gen_v4());
                     if (!ok)
-                        throw::std::runtime_error("UUID collision detected. Please check the random number generation.");
+                        throw std::runtime_error("UUID collision detected. Please check the random number generation.");
                 }
 
                 count += iteration;
@@ -325,7 +337,7 @@ class uuid_perf_test
                 for (int i = 0; i < iteration; i++) {
                     auto [it, ok] = set.insert(impl.gen_v7());
                     if (!ok)
-                        throw::std::runtime_error("UUID collision detected. Please check the random number generation.");
+                        throw std::runtime_error("UUID collision detected. Please check the random number generation.");
                 }
 
                 count += iteration;
@@ -371,6 +383,13 @@ public:
 
 int main(int argc, char** argv)
 {
-    uuid_perf_test<fquuid_impl> upt;
-    upt.run();
+    try {
+        uuid_perf_test<fquuid_impl> upt;
+        upt.run();
+        return 0;
+    }
+    catch (std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
 }
