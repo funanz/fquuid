@@ -134,12 +134,12 @@ class uuid_perf_test
         std::vector<uuid_t> out{in.size()};
 
         ops_measure ops{"parse", measure_time_short};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (size_t i = 0; i < in.size(); i++)
                     out[i] = impl.parse(in[i]);
 
-                count += in.size();
+                ops_count += in.size();
             }
         });
     }
@@ -152,12 +152,12 @@ class uuid_perf_test
         std::vector<std::string> out{in.size()};
 
         ops_measure ops{"to string", measure_time_short};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (size_t i = 0; i < in.size(); i++)
                     out[i] = impl.to_string(in[i]);
 
-                count += in.size();
+                ops_count += in.size();
             }
         });
     }
@@ -173,12 +173,12 @@ class uuid_perf_test
         std::vector<uuid_t> out{in.size()};
 
         ops_measure ops{"load bytes", measure_time_short};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (size_t i = 0; i < in.size(); i++)
                     out[i] = impl.load_bytes(in[i]);
 
-                count += in.size();
+                ops_count += in.size();
             }
         });
     }
@@ -191,12 +191,12 @@ class uuid_perf_test
         std::vector<array_t> out{in.size()};
 
         ops_measure ops{"to bytes", measure_time_short};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (size_t i = 0; i < in.size(); i++)
                     impl.to_bytes(in[i], out[i]);
 
-                count += in.size();
+                ops_count += in.size();
             }
         });
     }
@@ -207,33 +207,33 @@ class uuid_perf_test
             in.push_back(impl.gen_v4_mt());
 
         auto lhs = impl.gen_v4_mt();
-        uint_fast64_t count_less = 0;
+        uint_fast64_t cmp_count = 0;
 
         ops_measure ops{"compare", measure_time_short};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (auto& rhs : in) {
                     if (lhs < rhs)
-                        count_less++;
+                        cmp_count++;
                 }
-                count += in.size();
+                ops_count += in.size();
             }
         });
 
-        if (count_less == 0)
-            throw std::runtime_error("Compare count error");
+        if (cmp_count == 0)
+            throw std::runtime_error("Compare ops_count error");
     }
 
     void test_generate_v4_mt19937() {
         std::vector<uuid_t> out{1'000'000};
 
         ops_measure ops{"generate v4 (mt19937)", measure_time_short};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (auto& u : out)
                     u = impl.gen_v4_mt();
 
-                count += out.size();
+                ops_count += out.size();
             }
         });
     }
@@ -242,12 +242,12 @@ class uuid_perf_test
         std::vector<uuid_t> out{1'000'000};
 
         ops_measure ops{"generate v7 (mt19937)", measure_time_short};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (auto& u : out)
                     u = impl.gen_v7_mt();
 
-                count += out.size();
+                ops_count += out.size();
             }
         });
     }
@@ -256,12 +256,12 @@ class uuid_perf_test
         std::vector<uuid_t> out{100'000};
 
         ops_measure ops{"generate v4 (default)", measure_time_short};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (auto& u : out)
                     u = impl.gen_v4();
 
-                count += out.size();
+                ops_count += out.size();
             }
         });
     }
@@ -270,12 +270,12 @@ class uuid_perf_test
         std::vector<uuid_t> out{100'000};
 
         ops_measure ops{"generate v7 (default)", measure_time_short};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (auto& u : out)
                     u = impl.gen_v7();
 
-                count += out.size();
+                ops_count += out.size();
             }
         });
     }
@@ -285,7 +285,7 @@ class uuid_perf_test
         constexpr int iteration = 100'000;
 
         ops_measure ops{"generate v4 (default, std::set)", measure_time_long};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (int i = 0; i < iteration; i++) {
                     auto [it, ok] = set.insert(impl.gen_v4());
@@ -293,7 +293,7 @@ class uuid_perf_test
                         throw std::runtime_error("UUID collision detected. Please check the random number generation.");
                 }
 
-                count += iteration;
+                ops_count += iteration;
             }
         });
     }
@@ -303,7 +303,7 @@ class uuid_perf_test
         constexpr int iteration = 100'000;
 
         ops_measure ops{"generate v7 (default, std::set)", measure_time_long};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (int i = 0; i < iteration; i++) {
                     auto [it, ok] = set.insert(impl.gen_v7());
@@ -311,7 +311,7 @@ class uuid_perf_test
                         throw std::runtime_error("UUID collision detected. Please check the random number generation.");
                 }
 
-                count += iteration;
+                ops_count += iteration;
             }
         });
     }
@@ -321,7 +321,7 @@ class uuid_perf_test
         constexpr int iteration = 100'000;
 
         ops_measure ops{"generate v4 (default, std::unordered_set)", measure_time_long};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (int i = 0; i < iteration; i++) {
                     auto [it, ok] = set.insert(impl.gen_v4());
@@ -329,7 +329,7 @@ class uuid_perf_test
                         throw std::runtime_error("UUID collision detected. Please check the random number generation.");
                 }
 
-                count += iteration;
+                ops_count += iteration;
             }
         });
     }
@@ -339,7 +339,7 @@ class uuid_perf_test
         constexpr int iteration = 100'000;
 
         ops_measure ops{"generate v7 (default, std::unordered_set)", measure_time_long};
-        ops.measure([&](auto token, auto& count) {
+        ops.measure([&](auto token, auto& ops_count) {
             while (!token.stop_requested()) {
                 for (int i = 0; i < iteration; i++) {
                     auto [it, ok] = set.insert(impl.gen_v7());
@@ -347,7 +347,7 @@ class uuid_perf_test
                         throw std::runtime_error("UUID collision detected. Please check the random number generation.");
                 }
 
-                count += iteration;
+                ops_count += iteration;
             }
         });
     }
