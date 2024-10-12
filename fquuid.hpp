@@ -175,77 +175,75 @@ namespace fquuid
         };
 
         class uuid_parser {
-        public:
-            static constexpr void parse(uuid_array& u, std::span<const char> s) {
-                if (is_standerd_format(s)) {
-                    // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-                    u[0] = (load_u64_hex(s.subspan(0, 8)) << 32 |
-                            load_u64_hex(s.subspan(9, 4)) << 16 |
-                            load_u64_hex(s.subspan(14, 4)));
-                    u[1] = (load_u64_hex(s.subspan(19, 4)) << 48 |
-                            load_u64_hex(s.subspan(24, 12)));
-                }
-                else if (s.size() >= 32) {
-                    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-                    u[0] = load_u64_hex(s.subspan(0, 16));
-                    u[1] = load_u64_hex(s.subspan(16, 16));
-                }
-                else {
-                    throw std::invalid_argument("uuid::parse() input span size is small");
-                }
-            }
+            template <int Bit>
+            requires (Bit == 64 || Bit == 48 || Bit == 32 ||Bit == 16)
+            static constexpr uint64_t load_hex(std::span<const char> s) {
+                if (s.size() < Bit / 4)
+                    throw std::invalid_argument("uuid::load_hex() span size is small");
 
-            static constexpr void to_string(const uuid_array& u, std::span<char> s) {
-                if (s.size() < 37)
-                    throw std::invalid_argument("uuid::to_string() output span size is small");
-
-                store_u64_hex(u[0] >> 32, s.subspan(0, 8));
-                store_u64_hex(u[0] >> 16, s.subspan(9, 4));
-                store_u64_hex(u[0],       s.subspan(14, 4));
-                store_u64_hex(u[1] >> 48, s.subspan(19, 4));
-                store_u64_hex(u[1],       s.subspan(24, 12));
-
-                s[8] = s[13] = s[18] = s[23] = '-';
-                s[36] = 0;
-            }
-
-            static constexpr size_t strlen(const char* s) {
-                auto p = s;
-                while (*p)
-                    p++;
-                return p - s;
-            }
-
-        private:
-            static constexpr bool is_standerd_format(std::span<const char> s) {
-                if (s.size() < 36) return false;
-
-                return (s[ 8] == '-' && s[13] == '-' &&
-                        s[18] == '-' && s[23] == '-');
-            }
-
-            static constexpr uint64_t load_u64_hex(std::span<const char> s) {
-                if (s.size() & 1)
-                    throw std::invalid_argument("uuid::load_u64_hex() missing low byte");
-
+                constexpr int Adj = 16 - Bit / 4;
                 uint64_t x = 0;
-                for (size_t i = 0; i < s.size(); i += 2) {
-                    x <<= 8;
-                    x |= hex_to_u4(s[i]) << 4 | hex_to_u4(s[i + 1]);
+                if constexpr (Bit == 64) {
+                    x |= (hex_to_u4(s[0 - Adj]) << 60 |
+                          hex_to_u4(s[1 - Adj]) << 56 |
+                          hex_to_u4(s[2 - Adj]) << 52 |
+                          hex_to_u4(s[3 - Adj]) << 48);
+                }
+                if constexpr (Bit >= 48) {
+                    x |= (hex_to_u4(s[4 - Adj]) << 44 |
+                          hex_to_u4(s[5 - Adj]) << 40 |
+                          hex_to_u4(s[6 - Adj]) << 36 |
+                          hex_to_u4(s[7 - Adj]) << 32);
+                }
+                if constexpr (Bit >= 32) {
+                    x |= (hex_to_u4(s[8 - Adj]) << 28 |
+                          hex_to_u4(s[9 - Adj]) << 24 |
+                          hex_to_u4(s[10 - Adj]) << 20 |
+                          hex_to_u4(s[11 - Adj]) << 16);
+                }
+                if constexpr (Bit >= 16) {
+                    x |= (hex_to_u4(s[12 - Adj]) << 12 |
+                          hex_to_u4(s[13 - Adj]) << 8 |
+                          hex_to_u4(s[14 - Adj]) << 4 |
+                          hex_to_u4(s[15 - Adj]));
                 }
                 return x;
             }
 
-            static constexpr void store_u64_hex(uint64_t x, std::span<char> s) {
-                constexpr auto u4_to_hex_table = "0123456789abcdef";
+            template <int Bit>
+            requires (Bit == 64 || Bit == 48 || Bit == 32 ||Bit == 16)
+            static constexpr void store_hex(uint64_t x, std::span<char> s) {
+                if (s.size() < Bit / 4)
+                    throw std::invalid_argument("uuid::store_hex() span size is small");
 
-                for (auto& c : s | std::views::reverse) {
-                    c = u4_to_hex_table[x & 0xf];
-                    x >>= 4;
+                constexpr int Adj = 16 - Bit / 4;
+                if constexpr (Bit == 64) {
+                    s[0 - Adj] = u4_to_hex_table[x >> 60 & 0xf];
+                    s[1 - Adj] = u4_to_hex_table[x >> 56 & 0xf];
+                    s[2 - Adj] = u4_to_hex_table[x >> 52 & 0xf];
+                    s[3 - Adj] = u4_to_hex_table[x >> 48 & 0xf];
+                }
+                if constexpr (Bit >= 48) {
+                    s[4 - Adj] = u4_to_hex_table[x >> 44 & 0xf];
+                    s[5 - Adj] = u4_to_hex_table[x >> 40 & 0xf];
+                    s[6 - Adj] = u4_to_hex_table[x >> 36 & 0xf];
+                    s[7 - Adj] = u4_to_hex_table[x >> 32 & 0xf];
+                }
+                if constexpr (Bit >= 32) {
+                    s[8 - Adj] = u4_to_hex_table[x >> 28 & 0xf];
+                    s[9 - Adj] = u4_to_hex_table[x >> 24 & 0xf];
+                    s[10 - Adj] = u4_to_hex_table[x >> 20 & 0xf];
+                    s[11 - Adj] = u4_to_hex_table[x >> 16 & 0xf];
+                }
+                if constexpr (Bit >= 16) {
+                    s[12 - Adj] = u4_to_hex_table[x >> 12 & 0xf];
+                    s[13 - Adj] = u4_to_hex_table[x >> 8 & 0xf];
+                    s[14 - Adj] = u4_to_hex_table[x >> 4 & 0xf];
+                    s[15 - Adj] = u4_to_hex_table[x & 0xf];
                 }
             }
 
-            static constexpr uint8_t hex_to_u4(char c) {
+            static constexpr uint64_t hex_to_u4(char c) {
                 auto n = hex_to_u4_table[static_cast<size_t>(c) & 0xff];
                 if (n == 0xff)
                     throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
@@ -266,6 +264,56 @@ namespace fquuid
                 }
                 return a;
             }();
+
+            static constexpr auto u4_to_hex_table = "0123456789abcdef";
+
+            static constexpr bool is_standerd_format(std::span<const char> s) {
+                if (s.size() < 36) return false;
+
+                return (s[ 8] == '-' && s[13] == '-' &&
+                        s[18] == '-' && s[23] == '-');
+            }
+
+        public:
+            static constexpr void parse(uuid_array& u, std::span<const char> s) {
+                if (is_standerd_format(s)) {
+                    // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+                    u[0] = (load_hex<32>(s.subspan(0, 8)) << 32 |
+                            load_hex<16>(s.subspan(9, 4)) << 16 |
+                            load_hex<16>(s.subspan(14, 4)));
+                    u[1] = (load_hex<16>(s.subspan(19, 4)) << 48 |
+                            load_hex<48>(s.subspan(24, 12)));
+                }
+                else if (s.size() >= 32) {
+                    // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                    u[0] = load_hex<64>(s.subspan(0, 16));
+                    u[1] = load_hex<64>(s.subspan(16, 16));
+                }
+                else {
+                    throw std::invalid_argument("uuid::parse() input span size is small");
+                }
+            }
+
+            static constexpr void to_string(const uuid_array& u, std::span<char> s) {
+                if (s.size() < 37)
+                    throw std::invalid_argument("uuid::to_string() output span size is small");
+
+                store_hex<32>(u[0] >> 32, s.subspan(0, 8));
+                store_hex<16>(u[0] >> 16, s.subspan(9, 4));
+                store_hex<16>(u[0],       s.subspan(14, 4));
+                store_hex<16>(u[1] >> 48, s.subspan(19, 4));
+                store_hex<48>(u[1],       s.subspan(24, 12));
+
+                s[8] = s[13] = s[18] = s[23] = '-';
+                s[36] = 0;
+            }
+
+            static constexpr size_t strlen(const char* s) {
+                auto p = s;
+                while (*p)
+                    p++;
+                return p - s;
+            }
         };
 
         class uuid_bytes {
