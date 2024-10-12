@@ -14,9 +14,6 @@
 #include <vector>
 #include "fquuid.hpp"
 
-constexpr double measure_time_short = 3;
-constexpr double measure_time_long = 10;
-
 class ops_measure
 {
     std::string name_;
@@ -105,6 +102,9 @@ class uuid_perf_test
     using array_t = UuidImpl::array_type;
 
     UuidImpl impl;
+
+    static constexpr double measure_time_short = 3;
+    static constexpr double measure_time_long = 10;
 
     void test_parse() {
         std::vector<std::string> in;
@@ -316,6 +316,7 @@ class uuid_perf_test
             }
         });
     }
+
 public:
     void run() {
         test_parse();
@@ -337,6 +338,7 @@ public:
 class fquuid_impl
 {
     std::mt19937 mt; // [INSECURE] for performance test
+
 public:
     using uuid_type = fquuid::uuid;
     using array_type = std::array<uint8_t, 16>;
