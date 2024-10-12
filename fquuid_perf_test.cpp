@@ -1,4 +1,5 @@
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <concepts>
 #include <cstdint>
@@ -30,30 +31,36 @@ public:
         : name_(name), time_(time) {}
 
     void measure(measure_fn fn) const {
-        uint_fast64_t count = 0;
+        uint_fast64_t ops_count = 0;
+
+        auto thread_begin = clock::now();
+        auto thread_end = thread_begin;
         std::exception_ptr thread_exception;
+        std::atomic_bool has_exception = false;
+
         std::jthread jt {[&] (auto token) {
+            thread_begin = clock::now();
             try {
-                fn(token, count);
+                fn(token, ops_count);
             }
             catch (...) {
                 thread_exception = std::current_exception();
+                has_exception = true;
             }
+            thread_end = clock::now();
         }};
+
         auto begin = clock::now();
-
-        while (!thread_exception) {
-            auto sec = to_sec(clock::now() - begin);
-            if (sec >= time_)
+        while (!has_exception) {
+            auto elapsed = to_sec(clock::now() - begin);
+            if (elapsed >= time_)
                 break;
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
-
         jt.request_stop();
         jt.join();
-        auto end = clock::now();
 
-        print(end - begin, count);
+        print(thread_end - thread_begin, ops_count);
 
         if (thread_exception)
             std::rethrow_exception(thread_exception);
@@ -67,7 +74,7 @@ private:
     }
 
     template <class Duration>
-    void print(const Duration& elapsed, uint_fast64_t count) const {
+    void print(const Duration& elapsed, uint_fast64_t ops_count) const {
         std::chrono::hh_mm_ss hms(elapsed);
         std::cout << std::setfill(' ') << std::setw(2)
                   << hms.minutes().count() << ":"
@@ -77,7 +84,7 @@ private:
                   << hms.subseconds().count()
                   << "\t";
 
-        auto [scaled_ops, prefix] = si_prefix(count / to_sec(elapsed));
+        auto [scaled_ops, prefix] = si_prefix(ops_count / to_sec(elapsed));
         std::cout << std::setfill(' ') << std::setw(6)
                   << std::fixed << std::setprecision(2)
                   << scaled_ops << " "
