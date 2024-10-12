@@ -193,16 +193,26 @@ static void test_string()
     auto s1 = a.to_string();
 
     constexpr auto s2_array = [&] {
-        std::array<char, 80> buf;
+        std::array<char, 40> buf;
+        std::ranges::fill(buf, '*');
+        a.to_string_z(buf);
+        return buf;
+    }();
+    std::string s2(s2_array.data());
+
+    constexpr auto s3_array = [&] {
+        std::array<char, 40> buf;
         std::ranges::fill(buf, '*');
         a.to_string(buf);
         return buf;
     }();
-    std::string s2{s2_array.data()};
+    std::string s3(s3_array.data(), s3_array.size());
 
     runtime_assert(s1 == "d604557f-6739-4883-b627-bc0a81b84e97", "test_string() #1");
     runtime_assert(s2 == "d604557f-6739-4883-b627-bc0a81b84e97", "test_string() #2");
-    static_assert(s2_array.size() == 80, "test_string() #3");
+    runtime_assert(s3 == "d604557f-6739-4883-b627-bc0a81b84e97****", "test_string() #3");
+    static_assert(s2_array.size() == 40, "test_string() #4");
+    static_assert(s3_array.size() == 40, "test_string() #5");
 }
 
 static void test_string_error()
@@ -210,9 +220,18 @@ static void test_string_error()
     try {
         constexpr auto a = uuid{"d604557f-6739-4883-b627-bc0a81b84e97"};
 
-        std::array<char, 36> buf;
+        std::array<char, 35> buf;
         a.to_string(buf);
         runtime_assert(0, "test_string_error() #1");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        constexpr auto a = uuid{"d604557f-6739-4883-b627-bc0a81b84e97"};
+
+        std::array<char, 36> buf;
+        a.to_string_z(buf);
+        runtime_assert(0, "test_string_error() #2");
     }
     catch (std::invalid_argument&) {}
 }

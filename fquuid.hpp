@@ -90,18 +90,22 @@ namespace fquuid
         }
 
         constexpr void to_string(std::span<char> s) const {
-            uuid_parser::to_string(u_, s);
+            uuid_parser::to_string(u_, s, false);
+        }
+
+        constexpr void to_string_z(std::span<char> s) const {
+            uuid_parser::to_string(u_, s, true);
         }
 
         std::string to_string() const {
-            std::array<char, 37> a;
-            uuid_parser::to_string(u_, a);
-            return {a.data()};
+            std::string s(36, 0);
+            uuid_parser::to_string(u_, s, false);
+            return s;
         }
 
         void println() const {
             std::array<char, 37> a;
-            uuid_parser::to_string(u_, a);
+            uuid_parser::to_string(u_, a, true);
             puts(a.data());
         }
 
@@ -302,8 +306,9 @@ namespace fquuid
                 }
             }
 
-            static constexpr void to_string(const uuid_array& u, std::span<char> s) {
-                if (s.size() < 37)
+            static constexpr void to_string(const uuid_array& u, std::span<char> s, bool null_terminate) {
+                size_t size = null_terminate ? 37 : 36;
+                if (s.size() < size)
                     throw std::invalid_argument("uuid::to_string() output span size is small");
 
                 store_hex<32>(u[0] >> 32, s.subspan(0, 8));
@@ -313,7 +318,9 @@ namespace fquuid
                 store_hex<48>(u[1],       s.subspan(24, 12));
 
                 s[8] = s[13] = s[18] = s[23] = '-';
-                s[36] = 0;
+
+                if (null_terminate)
+                    s[36] = 0;
             }
 
             static constexpr size_t strlen(const char* s) {
