@@ -268,8 +268,11 @@ class uuid_perf_test
         ops_measure ops{"generate v4 (default, std::set)", measure_time_long};
         ops.measure([&](auto token, auto& count) {
             while (!token.stop_requested()) {
-                for (int i = 0; i < iteration; i++)
-                    set.insert(impl.gen_v4());
+                for (int i = 0; i < iteration; i++) {
+                    auto [it, ok] = set.insert(impl.gen_v4());
+                    if (!ok)
+                        throw::std::runtime_error("UUID collision detected. Please check the random number generation.");
+                }
 
                 count += iteration;
             }
@@ -283,8 +286,11 @@ class uuid_perf_test
         ops_measure ops{"generate v7 (default, std::set)", measure_time_long};
         ops.measure([&](auto token, auto& count) {
             while (!token.stop_requested()) {
-                for (int i = 0; i < iteration; i++)
-                    set.insert(impl.gen_v7());
+                for (int i = 0; i < iteration; i++) {
+                    auto [it, ok] = set.insert(impl.gen_v7());
+                    if (!ok)
+                        throw::std::runtime_error("UUID collision detected. Please check the random number generation.");
+                }
 
                 count += iteration;
             }
@@ -298,8 +304,11 @@ class uuid_perf_test
         ops_measure ops{"generate v4 (default, std::unordered_set)", measure_time_long};
         ops.measure([&](auto token, auto& count) {
             while (!token.stop_requested()) {
-                for (int i = 0; i < iteration; i++)
-                    set.insert(impl.gen_v4());
+                for (int i = 0; i < iteration; i++) {
+                    auto [it, ok] = set.insert(impl.gen_v4());
+                    if (!ok)
+                        throw::std::runtime_error("UUID collision detected. Please check the random number generation.");
+                }
 
                 count += iteration;
             }
@@ -313,8 +322,11 @@ class uuid_perf_test
         ops_measure ops{"generate v7 (default, std::unordered_set)", measure_time_long};
         ops.measure([&](auto token, auto& count) {
             while (!token.stop_requested()) {
-                for (int i = 0; i < iteration; i++)
-                    set.insert(impl.gen_v7());
+                for (int i = 0; i < iteration; i++) {
+                    auto [it, ok] = set.insert(impl.gen_v7());
+                    if (!ok)
+                        throw::std::runtime_error("UUID collision detected. Please check the random number generation.");
+                }
 
                 count += iteration;
             }
