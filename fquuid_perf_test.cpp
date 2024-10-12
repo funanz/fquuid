@@ -162,6 +162,24 @@ class uuid_perf_test
         });
     }
 
+    void test_to_string_array() {
+        std::vector<uuid_t> in;
+        for (int i = 0; i < 1'000'000; i++)
+            in.push_back(impl.gen_v4_mt());
+
+        std::vector<std::array<char, 40>> out{in.size()};
+
+        ops_measure ops{"to string (array)", measure_time_short};
+        ops.measure([&](auto token, auto& ops_count) {
+            while (!token.stop_requested()) {
+                for (size_t i = 0; i < in.size(); i++)
+                    impl.to_string(in[i], out[i]);
+
+                ops_count += in.size();
+            }
+        });
+    }
+
     void test_load_bytes() {
         std::vector<array_t> in;
         for (int i = 0; i < 1'000'000; i++) {
@@ -356,6 +374,7 @@ public:
     void run() {
         test_parse();
         test_to_string();
+        test_to_string_array();
         test_load_bytes();
         test_to_bytes();
         test_compare();
@@ -384,6 +403,7 @@ public:
     uuid_type gen_v7_mt() { return uuid_type::v7(mt); }
     uuid_type parse(const std::string& s) { return uuid_type{s}; }
     std::string to_string(const uuid_type& u) { return u.to_string(); }
+    void to_string(const uuid_type& u, std::span<char> s) { u.to_string(s); }
     uuid_type load_bytes(const array_type& a) { return uuid_type{a}; }
     void to_bytes(const uuid_type& u, array_type& a) { u.to_bytes(a); }
 };
