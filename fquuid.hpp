@@ -378,7 +378,7 @@ namespace fquuid
 namespace std
 {
     template<>
-    class hash<fquuid::uuid>
+    struct hash<fquuid::uuid>
     {
     public:
         size_t operator()(const fquuid::uuid& u) const noexcept {
