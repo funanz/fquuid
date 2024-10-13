@@ -40,7 +40,7 @@ namespace fquuid
         }
 
         template <class RNG>
-        uuid v4(RNG& rng) {
+        static uuid v4(RNG& rng) {
             std::uniform_int_distribution<uint64_t> dist64;
             uuid_u64 u;
             u[0] = dist64(rng);
@@ -53,12 +53,12 @@ namespace fquuid
         }
 
         template <class RNG>
-        uuid v7(RNG& rng) {
+        static uuid v7(RNG& rng) {
             return v7(rng, get_utc_now());
         }
 
         template <class RNG>
-        uuid v7(RNG& rng, int64_t ms) {
+        static uuid v7(RNG& rng, int64_t ms) {
             std::uniform_int_distribution<uint16_t> dist16;
             std::uniform_int_distribution<uint64_t> dist64;
             uuid_u64 u;

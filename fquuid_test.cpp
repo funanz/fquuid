@@ -55,8 +55,8 @@ static void test_random()
 
     auto a = gen.v4();
     auto b = gen.v7();
-    auto c = gen.v4(rng);
-    auto d = gen.v7(rng);
+    auto c = uuid_generator::v4(rng);
+    auto d = uuid_generator::v7(rng);
 
     runtime_assert(a.get_version() == 4, "test_random() #1");
     runtime_assert(b.get_version() == 7, "test_random() #2");
@@ -73,11 +73,10 @@ static void test_random()
 
 static void test_time()
 {
-    uuid_generator gen;
     uuid_random rng;
 
-    auto a = gen.v7(rng, 0x01926c01'ba2c);
-    auto b = gen.v7(rng, 0x01926c01'ba2c);
+    auto a = uuid_generator::v7(rng, 0x01926c01'ba2c);
+    auto b = uuid_generator::v7(rng, 0x01926c01'ba2c);
 
     runtime_assert(a.to_string().substr(0, 13) == "01926c01-ba2c", "test_time() #1");
     runtime_assert(b.to_string().substr(0, 13) == "01926c01-ba2c", "test_time() #2");

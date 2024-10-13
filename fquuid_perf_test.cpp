@@ -13,8 +13,8 @@ public:
     uuid_type gen_v4() { return gen.v4(); }
     uuid_type gen_v7() { return gen.v7(); }
 
-    uuid_type gen_v4_mt() { return gen.v4(mt); }
-    uuid_type gen_v7_mt() { return gen.v7(mt); }
+    uuid_type gen_v4_mt() { return fquuid::uuid_generator::v4(mt); }
+    uuid_type gen_v7_mt() { return fquuid::uuid_generator::v7(mt); }
 
     uuid_type parse(const std::string& s) { return uuid_type{s}; }
 
