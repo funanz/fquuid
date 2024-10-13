@@ -1,3 +1,4 @@
+#pragma once
 #include "fquuid.hpp"
 #include "fquuid_random.hpp"
 
