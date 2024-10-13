@@ -6,6 +6,8 @@ endif ()
 
 project(fquuid)
 
+include_directories(${CMAKE_INCLUDE_PATH})
+
 add_executable(fquuid-perf-test fquuid_perf_test.cpp)
 target_compile_features(fquuid-perf-test PUBLIC cxx_std_20)
 if (UNIX)
