@@ -64,10 +64,12 @@ namespace fquuid
             jt.request_stop();
             jt.join();
 
-            print(thread_end - thread_begin, ops_count);
-
-            if (thread_exception)
+            if (thread_exception) {
+                print_blank();
                 std::rethrow_exception(thread_exception);
+            } else {
+                print(thread_end - thread_begin, ops_count);
+            }
         }
 
     private:
@@ -75,6 +77,12 @@ namespace fquuid
         static double to_sec(const Duration& d) {
             using fsec = std::chrono::duration<double>;
             return std::chrono::duration_cast<fsec>(d).count();
+        }
+
+        void print_blank() const {
+            std::cout << std::setw(15) << ' ' << "\t"
+                      << std::setw(13) << ' ' << "\t"
+                      << name_ << std::endl << std::flush;
         }
 
         template <class Duration>
