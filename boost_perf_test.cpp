@@ -1,3 +1,5 @@
+// Copyright 2024 granz.fisherman@gmail.com
+// https://opensource.org/license/mit
 #include <boost/version.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>

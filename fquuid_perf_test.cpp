@@ -1,3 +1,5 @@
+// Copyright 2024 granz.fisherman@gmail.com
+// https://opensource.org/license/mit
 #include "fquuid.hpp"
 #include "fquuid_perf_test.hpp"
 

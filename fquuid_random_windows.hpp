@@ -1,3 +1,5 @@
+// Copyright 2024 granz.fisherman@gmail.com
+// https://opensource.org/license/mit
 #pragma once
 #define NOMINMAX
 #define WIN32_NO_STATUS
