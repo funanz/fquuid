@@ -1,9 +1,9 @@
 #pragma once
-#include <chrono>
 #include <cstdint>
 #include <random>
 #include "fquuid_uuid.hpp"
 #include "fquuid_random.hpp"
+#include "fquuid_clock.hpp"
 
 namespace fquuid
 {
@@ -21,13 +21,6 @@ namespace fquuid
 
         static void set_unix_ts_ms(uuid_u64& u, int64_t ms) {
             u[0] = (u[0] & 0x0000'0000'0000'ffff) | (ms << 16);
-        }
-
-        static int64_t get_utc_now() {
-            auto tp = std::chrono::system_clock::now();
-            auto d = tp.time_since_epoch();
-            auto dms = std::chrono::duration_cast<std::chrono::milliseconds>(d);
-            return dms.count();
         }
 
     public:
@@ -54,7 +47,7 @@ namespace fquuid
 
         template <class RNG>
         static uuid v7(RNG& rng) {
-            return v7(rng, get_utc_now());
+            return v7(rng, uuid_clock::now());
         }
 
         template <class RNG>
