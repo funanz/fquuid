@@ -11,6 +11,7 @@
 #include <bcrypt.h>
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 
 namespace fquuid
 {
