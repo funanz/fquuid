@@ -17,6 +17,8 @@
 #include <vector>
 #include "fquuid.hpp"
 
+class not_implemented : public std::exception {};
+
 class ops_measure
 {
     using clock = std::chrono::high_resolution_clock;
@@ -370,22 +372,33 @@ class uuid_perf_test
         });
     }
 
+    using test_fn = void(uuid_perf_test::*)();
+
+    static constexpr test_fn tests[] = {
+        &uuid_perf_test::test_parse,
+        &uuid_perf_test::test_to_string,
+        &uuid_perf_test::test_to_string_array,
+        &uuid_perf_test::test_load_bytes,
+        &uuid_perf_test::test_to_bytes,
+        &uuid_perf_test::test_compare,
+        &uuid_perf_test::test_generate_v4_mt19937,
+        &uuid_perf_test::test_generate_v7_mt19937,
+        &uuid_perf_test::test_generate_v4,
+        &uuid_perf_test::test_generate_v7,
+        &uuid_perf_test::test_generate_v4_set,
+        &uuid_perf_test::test_generate_v7_set,
+        &uuid_perf_test::test_generate_v4_unordered_set,
+        &uuid_perf_test::test_generate_v7_unordered_set,
+    };
+
 public:
     void run() {
-        test_parse();
-        test_to_string();
-        test_to_string_array();
-        test_load_bytes();
-        test_to_bytes();
-        test_compare();
-        test_generate_v4_mt19937();
-        test_generate_v7_mt19937();
-        test_generate_v4();
-        test_generate_v7();
-        test_generate_v4_set();
-        test_generate_v7_set();
-        test_generate_v4_unordered_set();
-        test_generate_v7_unordered_set();
+        for (auto test : tests) {
+            try {
+                (this->*test)();
+            }
+            catch (not_implemented&) {}
+        }
     }
 };
 
