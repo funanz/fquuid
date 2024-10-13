@@ -17,7 +17,7 @@ elseif (MSVC)
   target_link_libraries(fquuid-perf-test PRIVATE bcrypt.lib)
 endif()
 
-# boos-perf-test
+# boost-perf-test
 include(CheckIncludeFile)
 set(CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH})
 check_include_file("boost/version.hpp" HAVE_BOOST)
