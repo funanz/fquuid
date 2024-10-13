@@ -91,5 +91,5 @@ namespace fquuid
         uuid_dev_urandom& operator =(const uuid_dev_urandom&) = delete;
     };
 
-    using uuid_random = uuid_sys_getrandom<uint64_t>;
+    using uuid_random = uuid_dev_urandom<uint64_t>;
 }
