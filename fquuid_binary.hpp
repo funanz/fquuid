@@ -1,12 +1,13 @@
 #pragma once
+#include <cstdint>
+#include <span>
+#include <stdexcept>
 #include "fquuid.hpp"
 
 namespace fquuid
 {
     class uuid_binary
     {
-        using uuid_array = std::array<uint64_t, 2>;
-
         static constexpr uint64_t load_u64(std::span<const uint8_t> bytes) {
             return (static_cast<uint64_t>(bytes[0]) << 56 |
                     static_cast<uint64_t>(bytes[1]) << 48 |
@@ -30,7 +31,7 @@ namespace fquuid
         }
 
     public:
-        static constexpr void load_from_bytes(uuid_array& u, std::span<const uint8_t> bytes) {
+        static constexpr void load_from_bytes(uuid_u64& u, std::span<const uint8_t> bytes) {
             if (bytes.size() < 16)
                 throw std::invalid_argument("uuid::load_from_bytes() input span size is small");
 
@@ -38,7 +39,7 @@ namespace fquuid
             u[1] = load_u64(bytes.subspan(8, 8));
         }
 
-        static constexpr void store_to_bytes(const uuid_array& u, std::span<uint8_t> bytes) {
+        static constexpr void store_to_bytes(const uuid_u64& u, std::span<uint8_t> bytes) {
             if (bytes.size() < 16)
                 throw std::invalid_argument("uuid::store_to_bytes() output span size is small");
 

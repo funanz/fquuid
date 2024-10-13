@@ -1,12 +1,14 @@
 #pragma once
+#include <cstdint>
+#include <span>
+#include <stdexcept>
+#include <string>
 #include "fquuid.hpp"
 
 namespace fquuid
 {
     class uuid_string
     {
-        using uuid_array = std::array<uint64_t, 2>;
-
         static constexpr auto hex_to_u4_table = [] {
             std::array<uint8_t, 256> a;
             for (size_t i = 0; i < a.size(); i++) {
@@ -114,7 +116,7 @@ namespace fquuid
         }
 
     public:
-        static constexpr void parse(uuid_array& u, std::span<const char> s) {
+        static constexpr void parse(uuid_u64& u, std::span<const char> s) {
             if (is_standerd_format(s)) {
                 // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
                 u[0] = (load_hex<32>(s.subspan(0, 8)) << 32 |
@@ -133,7 +135,7 @@ namespace fquuid
             }
         }
 
-        static constexpr void to_string(const uuid_array& u, std::span<char> s, bool null_terminate) {
+        static constexpr void to_string(const uuid_u64& u, std::span<char> s, bool null_terminate) {
             size_t size = null_terminate ? 37 : 36;
             if (s.size() < size)
                 throw std::invalid_argument("uuid::to_string() output span size is small");
