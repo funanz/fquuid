@@ -9,7 +9,7 @@ namespace fquuid
 {
     class uuid_generator
     {
-        uuid_random default_rng;
+        uuid_random rng_;
 
         static void set_version(uuid_u64& u, uint64_t ver) {
             u[0] = (u[0] & 0xffff'ffff'ffff'0fff) | ((ver & 0x0f) << 12);
@@ -25,11 +25,11 @@ namespace fquuid
 
     public:
         uuid v4() {
-            return v4(default_rng);
+            return v4(rng_);
         }
 
         uuid v7() {
-            return v7(default_rng);
+            return v7(rng_);
         }
 
         template <class RNG>
