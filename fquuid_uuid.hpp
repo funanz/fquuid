@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <functional>
+#include <ostream>
 #include <span>
 #include <stdexcept>
 #include <string>
@@ -93,6 +94,13 @@ namespace fquuid
             return h(u_[0]) ^ h(u_[1]);
         }
     };
+
+    template <class CharT, class Traits>
+    auto& operator <<(std::basic_ostream<CharT, Traits>& os, const uuid& u) {
+        std::array<CharT, 37> buf;
+        u.to_string_z(buf);
+        return os << buf.data();
+    }
 }
 
 namespace std

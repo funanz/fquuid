@@ -5,6 +5,7 @@
 #include <compare>
 #include <iostream>
 #include <map>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -240,6 +241,16 @@ static void test_string_error()
     catch (std::invalid_argument&) {}
 }
 
+static void test_ostream()
+{
+    constexpr auto a = uuid{"d604557f67394883b627bc0a81b84e97"};
+
+    std::ostringstream oss;
+    oss << "{" << a << "}";
+
+    runtime_assert(oss.str() == "{d604557f-6739-4883-b627-bc0a81b84e97}", "test_ostream() #1");
+}
+
 template <class Map>
 static void test_map_impl()
 {
@@ -285,6 +296,7 @@ int main(int argc, char** argv)
         test_bytes_error();
         test_string();
         test_string_error();
+        test_ostream();
         test_map();
 
         std::cout << "All tests successful" << std::endl;
