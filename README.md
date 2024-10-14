@@ -36,6 +36,40 @@ Using the latest boost
 |generate v4 (default, std::unordered_set)|  2.03 M op/s|  2.72 M op/s|  2.33 M op/s|
 |generate v7 (default, std::unordered_set)|  2.19 M op/s|  2.59 M op/s|  2.16 M op/s|
 
+# Example
+
+```C++
+using namespace fquuid;
+
+void example()
+{
+    // constexpr
+    constexpr auto x = uuid{"c66b4959-8c77-4b11-9763-270490f684e2"};
+
+    // generate
+    uuid_generator_v7 gen_v7;
+    auto y = gen_v7();
+
+    // change RNG
+    std::random_device rng;
+    auto z = uuid_generator_v7::generate(rng);
+
+    // map
+    std::map<uuid, std::string> m {
+        { gen_v7(), "hoge" },
+        { gen_v7(), "fuga" },
+        { gen_v7(), "piyo" },
+    };
+
+    // string
+    std::string s = x.to_string();
+
+    // bytes
+    std::array<uint8_t, 16> a;
+    x.to_bytes(a);
+}
+```
+
 # Remarks
 
 - parse は早いがコンパイル生成コードの配置によっては遅くなる
