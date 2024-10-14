@@ -108,7 +108,6 @@ namespace std
     template<>
     struct hash<fquuid::uuid>
     {
-    public:
         size_t operator()(const fquuid::uuid& u) const noexcept {
             return u.hash();
         }
