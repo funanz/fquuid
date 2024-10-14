@@ -5,18 +5,19 @@
 
 class fquuid_impl
 {
-    fquuid::uuid_generator gen;
+    fquuid::uuid_generator_v4 v4;
+    fquuid::uuid_generator_v7 v7;
     std::mt19937 mt; // [INSECURE] for performance test
 
 public:
     using uuid_type = fquuid::uuid;
     using array_type = std::array<uint8_t, 16>;
 
-    uuid_type gen_v4() { return gen.v4(); }
-    uuid_type gen_v7() { return gen.v7(); }
+    uuid_type gen_v4() { return v4(); }
+    uuid_type gen_v7() { return v7(); }
 
-    uuid_type gen_v4_mt() { return fquuid::uuid_generator::v4(mt); }
-    uuid_type gen_v7_mt() { return fquuid::uuid_generator::v7(mt); }
+    uuid_type gen_v4_mt() { return fquuid::uuid_generator_v4::generate(mt); }
+    uuid_type gen_v7_mt() { return fquuid::uuid_generator_v7::generate(mt); }
 
     uuid_type parse(const std::string& s) { return uuid_type{s}; }
 

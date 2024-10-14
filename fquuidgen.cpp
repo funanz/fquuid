@@ -49,12 +49,12 @@ int main(int argc, char** argv)
             return unknown_option(args[0], arg);
     }
 
-    fquuid::uuid_generator gen;
+    fquuid::uuid_random rng;
     do {
         if (mode == gen_mode::v4)
-            gen.v4().println();
+            fquuid::uuid_generator_v4::generate(rng).println();
         else if (mode == gen_mode::v7)
-            gen.v7().println();
+            fquuid::uuid_generator_v7::generate(rng).println();
         else
             break;
     } while (inf_loop);

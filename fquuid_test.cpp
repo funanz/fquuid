@@ -52,13 +52,14 @@ static void test_compare()
 
 static void test_random()
 {
-    uuid_generator gen;
+    uuid_generator_v4 v4;
+    uuid_generator_v7 v7;
     uuid_random rng;
 
-    auto a = gen.v4();
-    auto b = gen.v7();
-    auto c = uuid_generator::v4(rng);
-    auto d = uuid_generator::v7(rng);
+    auto a = v4();
+    auto b = v7();
+    auto c = uuid_generator_v4::generate(rng);
+    auto d = uuid_generator_v7::generate(rng);
 
     runtime_assert(a.get_version() == 4, "test_random() #1");
     runtime_assert(b.get_version() == 7, "test_random() #2");
@@ -77,8 +78,8 @@ static void test_time()
 {
     uuid_random rng;
 
-    auto a = uuid_generator::v7(rng, 0x01926c01'ba2c);
-    auto b = uuid_generator::v7(rng, 0x01926c01'ba2c);
+    auto a = uuid_generator_v7::generate(rng, 0x01926c01'ba2c);
+    auto b = uuid_generator_v7::generate(rng, 0x01926c01'ba2c);
 
     runtime_assert(a.to_string().substr(0, 13) == "01926c01-ba2c", "test_time() #1");
     runtime_assert(b.to_string().substr(0, 13) == "01926c01-ba2c", "test_time() #2");

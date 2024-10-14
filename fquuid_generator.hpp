@@ -9,10 +9,8 @@
 
 namespace fquuid
 {
-    class uuid_generator
+    namespace detail
     {
-        uuid_random rng_;
-
         static void set_version(uuid_u64& u, uint64_t ver) {
             u[0] = (u[0] & 0xffff'ffff'ffff'0fff) | ((ver & 0x0f) << 12);
         }
@@ -24,45 +22,56 @@ namespace fquuid
         static void set_unix_ts_ms(uuid_u64& u, int64_t ms) {
             u[0] = (u[0] & 0x0000'0000'0000'ffff) | (ms << 16);
         }
+    }
+
+    class uuid_generator_v4
+    {
+        uuid_random rng_;
 
     public:
-        uuid v4() {
-            return v4(rng_);
-        }
-
-        uuid v7() {
-            return v7(rng_);
+        uuid operator ()() {
+            return generate(rng_);
         }
 
         template <class RNG>
-        static uuid v4(RNG& rng) {
+        static uuid generate(RNG& rng) {
             std::uniform_int_distribution<uint64_t> dist64;
             uuid_u64 u;
             u[0] = dist64(rng);
             u[1] = dist64(rng);
 
-            set_version(u, 4);
-            set_variant(u, 0b10);
+            detail::set_version(u, 4);
+            detail::set_variant(u, 0b10);
 
             return uuid{u};
         }
+    };
 
-        template <class RNG>
-        static uuid v7(RNG& rng) {
-            return v7(rng, uuid_clock::now());
+    class uuid_generator_v7
+    {
+        uuid_random rng_;
+
+    public:
+        uuid operator ()() {
+            return generate(rng_);
         }
 
         template <class RNG>
-        static uuid v7(RNG& rng, int64_t ms) {
+        static uuid generate(RNG& rng) {
+            return generate(rng, uuid_clock::now());
+        }
+
+        template <class RNG>
+        static uuid generate(RNG& rng, int64_t ms) {
             std::uniform_int_distribution<uint16_t> dist16;
             std::uniform_int_distribution<uint64_t> dist64;
             uuid_u64 u;
             u[0] = dist16(rng);
             u[1] = dist64(rng);
 
-            set_unix_ts_ms(u, ms);
-            set_version(u, 7);
-            set_variant(u, 0b10);
+            detail::set_unix_ts_ms(u, ms);
+            detail::set_version(u, 7);
+            detail::set_variant(u, 0b10);
 
             return uuid{u};
         }
