@@ -87,6 +87,7 @@ namespace fquuid
             close();
             file_ = r.file_;
             r.file_ = nullptr;
+            return *this;
         }
 
         uuid_dev_urandom(const uuid_dev_urandom&) = delete;
