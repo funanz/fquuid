@@ -39,6 +39,10 @@ Using the latest boost
 # Example
 
 ```C++
+#include <fquuid.hpp>
+#include <map>
+#include <string>
+
 using namespace fquuid;
 
 void example()

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <span>
 #include <string>
-#include "fquuid.hpp"
+#include <fquuid.hpp>
 
 static int usage(const std::string& cmd)
 {

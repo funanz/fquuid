@@ -1,5 +1,6 @@
 // Copyright 2024 granz.fisherman@gmail.com
 // https://opensource.org/license/mit
+#include <fquuid.hpp>
 #include <algorithm>
 #include <array>
 #include <compare>
@@ -9,7 +10,6 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include "fquuid.hpp"
 
 using namespace fquuid;
 
