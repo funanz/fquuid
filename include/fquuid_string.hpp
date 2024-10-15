@@ -28,6 +28,7 @@ namespace fquuid
             return a;
         }();
 
+        // ok = 0x00 - 0x0f, error = 0xffff'ffff'ffff'ffff
         static constexpr uint64_t hex_to_u4(char c) {
             static_assert(hex_to_u4_table.size() == 256);
 
@@ -40,7 +41,7 @@ namespace fquuid
                          hex_to_u4(s[2]) << 4 |
                          hex_to_u4(s[3]));
 
-            if (u16e > 0xffff)
+            if (u16e >> 16)
                 throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
             else
                 return u16e;
@@ -56,7 +57,7 @@ namespace fquuid
                          hex_to_u4(s[6]) << 4 |
                          hex_to_u4(s[7]));
 
-            if (u32e > 0xffff'ffff)
+            if (u32e >> 32)
                 throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
             else
                 return u32e;
@@ -76,7 +77,7 @@ namespace fquuid
                          hex_to_u4(s[10]) << 4 |
                          hex_to_u4(s[11]));
 
-            if (u48e > 0xffff'ffff'ffff)
+            if (u48e >> 48)
                 throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
             else
                 return u48e;
