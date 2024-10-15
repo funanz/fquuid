@@ -140,21 +140,45 @@ static void test_parse_error()
     }
     catch (std::invalid_argument&) {}
 
+    // load_u16_hex 000x
     try {
-        uuid{"d604557f-6739-x883-b627-c0a81b84e97"};
+        uuid{"d604557f-673x-4883-b627-bc0a81b84e97"};
         runtime_assert(0, "test_parse_error() #6");
     }
     catch (std::invalid_argument&) {}
 
+    // load_u16_hex x000
     try {
-        uuid{"d604557f-673" "\x01" "-4883-b627-bc0a81b84e97"};
+        uuid{"d604557f-x739-4883-b627-bc0a81b84e97"};
         runtime_assert(0, "test_parse_error() #7");
     }
     catch (std::invalid_argument&) {}
 
+    // load_u32_hex 00000000x
     try {
-        uuid{"d604557f-" "\x01" "739-4883-b627-bc0a81b84e97"};
+        uuid{"d604557x-6739-4883-b627-bc0a81b84e97"};
         runtime_assert(0, "test_parse_error() #8");
+    }
+    catch (std::invalid_argument&) {}
+
+    // load_u32_hex x00000000
+    try {
+        uuid{"x604557f-6739-4883-b627-bc0a81b84e97"};
+        runtime_assert(0, "test_parse_error() #9");
+    }
+    catch (std::invalid_argument&) {}
+
+    // load_u48_hex 00000000000x
+    try {
+        uuid{"d604557f-6739-4883-b627-bc0a81b84e9x"};
+        runtime_assert(0, "test_parse_error() #10");
+    }
+    catch (std::invalid_argument&) {}
+
+    // load_u48_hex x00000000000
+    try {
+        uuid{"d604557f-6739-4883-b627-xc0a81b84e97"};
+        runtime_assert(0, "test_parse_error() #11");
     }
     catch (std::invalid_argument&) {}
 }

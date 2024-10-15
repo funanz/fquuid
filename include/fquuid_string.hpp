@@ -38,7 +38,7 @@ namespace fquuid
             auto u16e = (hex_to_u4(s[0]) << 12 |
                          hex_to_u4(s[1]) << 8 |
                          hex_to_u4(s[2]) << 4 |
-                         hex_to_u4(s[3]) << 0);
+                         hex_to_u4(s[3]));
 
             if (u16e > 0xffff)
                 throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
@@ -47,21 +47,44 @@ namespace fquuid
         }
 
         static constexpr uint64_t load_u32_hex(std::span<const char> s) {
-            return (load_u16_hex(s.subspan(0, 4)) << 16 |
-                    load_u16_hex(s.subspan(4, 4)));
+            auto u32e = (hex_to_u4(s[0]) << 28 |
+                         hex_to_u4(s[1]) << 24 |
+                         hex_to_u4(s[2]) << 20 |
+                         hex_to_u4(s[3]) << 16 |
+                         hex_to_u4(s[4]) << 12 |
+                         hex_to_u4(s[5]) << 8 |
+                         hex_to_u4(s[6]) << 4 |
+                         hex_to_u4(s[7]));
+
+            if (u32e > 0xffff'ffff)
+                throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
+            else
+                return u32e;
         }
 
         static constexpr uint64_t load_u48_hex(std::span<const char> s) {
-            return (load_u16_hex(s.subspan(0, 4)) << 32 |
-                    load_u16_hex(s.subspan(4, 4)) << 16 |
-                    load_u16_hex(s.subspan(8, 4)));
+            auto u48e = (hex_to_u4(s[0]) << 44 |
+                         hex_to_u4(s[1]) << 40 |
+                         hex_to_u4(s[2]) << 36 |
+                         hex_to_u4(s[3]) << 32 |
+                         hex_to_u4(s[4]) << 28 |
+                         hex_to_u4(s[5]) << 24 |
+                         hex_to_u4(s[6]) << 20 |
+                         hex_to_u4(s[7]) << 16 |
+                         hex_to_u4(s[8]) << 12 |
+                         hex_to_u4(s[9]) << 8 |
+                         hex_to_u4(s[10]) << 4 |
+                         hex_to_u4(s[11]));
+
+            if (u48e > 0xffff'ffff'ffff)
+                throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
+            else
+                return u48e;
         }
 
         static constexpr uint64_t load_u64_hex(std::span<const char> s) {
-            return (load_u16_hex(s.subspan(0, 4)) << 48 |
-                    load_u16_hex(s.subspan(4, 4)) << 32 |
-                    load_u16_hex(s.subspan(8, 4)) << 16 |
-                    load_u16_hex(s.subspan(12, 4)));
+            return (load_u32_hex(s.subspan(0, 8)) << 32 |
+                    load_u32_hex(s.subspan(8, 8)));
         }
 
         static constexpr char u4_to_hex(uint64_t u4) {
