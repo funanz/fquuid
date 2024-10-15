@@ -141,8 +141,20 @@ static void test_parse_error()
     catch (std::invalid_argument&) {}
 
     try {
-        uuid{"d604557f-6739-x883-b627b-c0a81b84e97"};
+        uuid{"d604557f-6739-x883-b627-c0a81b84e97"};
         runtime_assert(0, "test_parse_error() #6");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{"d604557f-673" "\x01" "-4883-b627-bc0a81b84e97"};
+        runtime_assert(0, "test_parse_error() #7");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{"d604557f-" "\x01" "739-4883-b627-bc0a81b84e97"};
+        runtime_assert(0, "test_parse_error() #8");
     }
     catch (std::invalid_argument&) {}
 }
