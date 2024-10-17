@@ -7,6 +7,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include "fquuid.hpp"
 
 namespace fquuid
@@ -133,13 +134,6 @@ namespace fquuid
                     s[18] == '-' && s[23] == '-');
         }
 
-        static constexpr size_t strlen(const CharT* s) {
-            auto p = s;
-            while (*p)
-                p++;
-            return p - s;
-        }
-
     public:
         static constexpr void parse(uuid_u64& u, std::span<const CharT> s) {
             if (is_standerd_format(s)) {
@@ -164,8 +158,7 @@ namespace fquuid
             if (s == nullptr)
                 throw std::invalid_argument("uuid::parse() argument is nullptr");
 
-            auto len = uuid_basic_string::strlen(s);
-            parse(u, std::span(s, len));
+            parse(u, std::basic_string_view<CharT>(s));
         }
 
         static constexpr void to_string(const uuid_u64& u, std::span<CharT> s, bool null_terminate) {
