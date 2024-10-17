@@ -32,28 +32,20 @@ namespace fquuid
             uuid_wstring::parse(u_, s);
         }
 
-        constexpr explicit uuid(const std::string& s) {
-            uuid_string::parse(u_, s);
-        }
-
-        constexpr explicit uuid(const std::wstring& s) {
-            uuid_wstring::parse(u_, s);
+        constexpr explicit uuid(std::span<const char8_t> s) {
+            uuid_u8string::parse(u_, s);
         }
 
         constexpr explicit uuid(const char* s) {
-            if (s == nullptr)
-                throw std::invalid_argument("uuid::uuid() argument is nullptr");
-
-            auto len = uuid_string::strlen(s);
-            uuid_string::parse(u_, std::span(s, len));
+            uuid_string::parse(u_, s);
         }
 
         constexpr explicit uuid(const wchar_t* s) {
-            if (s == nullptr)
-                throw std::invalid_argument("uuid::uuid() argument is nullptr");
+            uuid_wstring::parse(u_, s);
+        }
 
-            auto len = uuid_wstring::strlen(s);
-            uuid_wstring::parse(u_, std::span(s, len));
+        constexpr explicit uuid(const char8_t* s) {
+            uuid_u8string::parse(u_, s);
         }
 
         constexpr explicit uuid(std::span<const uint8_t> bytes) {
@@ -88,12 +80,20 @@ namespace fquuid
             uuid_wstring::to_string(u_, s, false);
         }
 
+        constexpr void to_string(std::span<char8_t> s) const {
+            uuid_u8string::to_string(u_, s, false);
+        }
+
         constexpr void to_string_z(std::span<char> s) const {
             uuid_string::to_string(u_, s, true);
         }
 
         constexpr void to_string_z(std::span<wchar_t> s) const {
             uuid_wstring::to_string(u_, s, true);
+        }
+
+        constexpr void to_string_z(std::span<char8_t> s) const {
+            uuid_u8string::to_string(u_, s, true);
         }
 
         std::string to_string() const {
@@ -105,6 +105,12 @@ namespace fquuid
         std::wstring to_wstring() const {
             std::wstring s(36, 0);
             uuid_wstring::to_string(u_, s, false);
+            return s;
+        }
+
+        std::u8string to_u8string() const {
+            std::u8string s(36, 0);
+            uuid_u8string::to_string(u_, s, false);
             return s;
         }
 

@@ -17,12 +17,12 @@ namespace fquuid
         static constexpr auto hex_to_u4_table = [] {
             std::array<int8_t, 256> a;
             for (size_t i = 0; i < a.size(); i++) {
-                if ('0' <= i && i <= '9')
-                    a[i] =  i - '0';
-                else if ('A' <= i && i <= 'F')
-                    a[i] =  i - 'A' + 10;
-                else if ('a' <= i && i <= 'f')
-                    a[i] =  i - 'a' + 10;
+                if (0x30 <= i && i <= 0x39) // [0-9]
+                    a[i] =  i - 0x30;
+                else if (0x41 <= i && i <= 0x46) // [A-F]
+                    a[i] =  i - 0x41 + 10;
+                else if (0x61 <= i && i <= 0x66) // [a-f]
+                    a[i] =  i - 0x61 + 10;
                 else
                     a[i] = -1;
             }
@@ -96,9 +96,9 @@ namespace fquuid
         static constexpr auto u4_to_hex_table = [] {
             std::array<CharT, 16> a;
             for (int i = 0; i < 10; i++)
-                a[i] = '0' + i;
+                a[i] = 0x30 + i; // [0-9]
             for (int i = 0; i < 6; i++)
-                a[i + 10] = 'a' + i;
+                a[10 + i] = 0x61 + i; // [a-f]
             return a;
         }();
 
@@ -133,6 +133,13 @@ namespace fquuid
                     s[18] == '-' && s[23] == '-');
         }
 
+        static constexpr size_t strlen(const CharT* s) {
+            auto p = s;
+            while (*p)
+                p++;
+            return p - s;
+        }
+
     public:
         static constexpr void parse(uuid_u64& u, std::span<const CharT> s) {
             if (is_standerd_format(s)) {
@@ -153,6 +160,14 @@ namespace fquuid
             }
         }
 
+        static constexpr void parse(uuid_u64& u, const CharT* s) {
+            if (s == nullptr)
+                throw std::invalid_argument("uuid::parse() argument is nullptr");
+
+            auto len = uuid_basic_string::strlen(s);
+            parse(u, std::span(s, len));
+        }
+
         static constexpr void to_string(const uuid_u64& u, std::span<CharT> s, bool null_terminate) {
             size_t size = null_terminate ? 37 : 36;
             if (s.size() < size)
@@ -169,15 +184,9 @@ namespace fquuid
             if (null_terminate)
                 s[36] = 0;
         }
-
-        static constexpr size_t strlen(const CharT* s) {
-            auto p = s;
-            while (*p)
-                p++;
-            return p - s;
-        }
     };
 
     using uuid_string = uuid_basic_string<char>;
     using uuid_wstring = uuid_basic_string<wchar_t>;
+    using uuid_u8string = uuid_basic_string<char8_t>;
 }

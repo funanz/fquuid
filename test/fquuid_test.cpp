@@ -107,10 +107,10 @@ static void test_parse()
     runtime_assert(e == f, "test_parse() #5");
 }
 
-static void test_parse_wide()
+static void test_parse_w()
 {
     constexpr auto a = uuid{L"d604557f-6739-4883-b627-bc0a81b84e97"};
-    constexpr auto b = uuid{L"d604557f67394883b627bc0a81b84e9\u0037"};
+    constexpr auto b = uuid{L"d604557f67394883b627bc0a81b84e9\U00000037"};
 
     constexpr auto span = std::span(L"d604557f-6739-4883-b627-bc0a81b84e97");
     constexpr auto c = uuid{span};
@@ -118,9 +118,25 @@ static void test_parse_wide()
     std::wstring s = L"d604557f-6739-4883-b627-bc0a81b84e97";
     auto d = uuid{s};
 
-    static_assert(a == b, "test_parse() #1");
-    static_assert(b == c, "test_parse() #1");
-    runtime_assert(d == d, "test_parse() #2");
+    static_assert(a == b, "test_parse_w() #1");
+    static_assert(b == c, "test_parse_w() #1");
+    runtime_assert(d == d, "test_parse_w() #2");
+}
+
+static void test_parse_u8()
+{
+    constexpr auto a = uuid{u8"d604557f-6739-4883-b627-bc0a81b84e97"};
+    constexpr auto b = uuid{u8"d604557f67394883b627bc0a81b84e9\U00000037"};
+
+    constexpr auto span = std::span(u8"d604557f-6739-4883-b627-bc0a81b84e97");
+    constexpr auto c = uuid{span};
+
+    std::u8string s = u8"d604557f-6739-4883-b627-bc0a81b84e97";
+    auto d = uuid{s};
+
+    static_assert(a == b, "test_parse_u8() #1");
+    static_assert(b == c, "test_parse_u8() #1");
+    runtime_assert(d == d, "test_parse_u8() #2");
 }
 
 static void test_parse_error()
@@ -199,11 +215,20 @@ static void test_parse_error()
     catch (std::invalid_argument&) {}
 }
 
-static void test_parse_wide_error()
+static void test_parse_w_error()
 {
     try {
-        uuid{L"d604557f-6739-4883-b627-bc0a81b84e9\u0137"};
-        runtime_assert(0, "test_parse_error_wide() #1");
+        uuid{L"d604557f-6739-4883-b627-bc0a81b84e9\U00000137"};
+        runtime_assert(0, "test_parse_w_error() #1");
+    }
+    catch (std::invalid_argument&) {}
+}
+
+static void test_parse_u8_error()
+{
+    try {
+        uuid{u8"d604557f-6739-4883-b627-bc0a81b84e9\U00000137"};
+        runtime_assert(0, "test_parse_u8_error() #1");
     }
     catch (std::invalid_argument&) {}
 }
@@ -237,7 +262,7 @@ static void test_string()
     static_assert(s3_array.size() == 40, "test_string() #5");
 }
 
-static void test_string_wide()
+static void test_string_w()
 {
     constexpr auto a = uuid{L"d604557f67394883b627bc0a81b84e97"};
 
@@ -245,7 +270,7 @@ static void test_string_wide()
 
     constexpr auto s2_array = [&] {
         std::array<wchar_t, 40> buf;
-        std::ranges::fill(buf, '*');
+        std::ranges::fill(buf, L'*');
         a.to_string_z(buf);
         return buf;
     }();
@@ -253,7 +278,7 @@ static void test_string_wide()
 
     constexpr auto s3_array = [&] {
         std::array<wchar_t, 40> buf;
-        std::ranges::fill(buf, '*');
+        std::ranges::fill(buf, L'*');
         a.to_string(buf);
         return buf;
     }();
@@ -262,6 +287,35 @@ static void test_string_wide()
     runtime_assert(s1 == L"d604557f-6739-4883-b627-bc0a81b84e97", "test_string() #1");
     runtime_assert(s2 == L"d604557f-6739-4883-b627-bc0a81b84e97", "test_string() #2");
     runtime_assert(s3 == L"d604557f-6739-4883-b627-bc0a81b84e97****", "test_string() #3");
+    static_assert(s2_array.size() == 40, "test_string() #4");
+    static_assert(s3_array.size() == 40, "test_string() #5");
+}
+
+static void test_string_u8()
+{
+    constexpr auto a = uuid{u8"d604557f67394883b627bc0a81b84e97"};
+
+    auto s1 = a.to_u8string();
+
+    constexpr auto s2_array = [&] {
+        std::array<char8_t, 40> buf;
+        std::ranges::fill(buf, u8'*');
+        a.to_string_z(buf);
+        return buf;
+    }();
+    std::u8string s2(s2_array.data());
+
+    constexpr auto s3_array = [&] {
+        std::array<char8_t, 40> buf;
+        std::ranges::fill(buf, u8'*');
+        a.to_string(buf);
+        return buf;
+    }();
+    std::u8string s3(s3_array.data(), s3_array.size());
+
+    runtime_assert(s1 == u8"d604557f-6739-4883-b627-bc0a81b84e97", "test_string() #1");
+    runtime_assert(s2 == u8"d604557f-6739-4883-b627-bc0a81b84e97", "test_string() #2");
+    runtime_assert(s3 == u8"d604557f-6739-4883-b627-bc0a81b84e97****", "test_string() #3");
     static_assert(s2_array.size() == 40, "test_string() #4");
     static_assert(s3_array.size() == 40, "test_string() #5");
 }
@@ -287,14 +341,14 @@ static void test_string_error()
     catch (std::invalid_argument&) {}
 }
 
-static void test_string_wide_error()
+static void test_string_w_error()
 {
     try {
         constexpr auto a = uuid{L"d604557f-6739-4883-b627-bc0a81b84e97"};
 
         std::array<wchar_t, 35> buf;
         a.to_string(buf);
-        runtime_assert(0, "test_string_error() #1");
+        runtime_assert(0, "test_string_w_error() #1");
     }
     catch (std::invalid_argument&) {}
 
@@ -303,7 +357,7 @@ static void test_string_wide_error()
 
         std::array<wchar_t, 36> buf;
         a.to_string_z(buf);
-        runtime_assert(0, "test_string_error() #2");
+        runtime_assert(0, "test_string_w_error() #2");
     }
     catch (std::invalid_argument&) {}
 }
@@ -318,7 +372,7 @@ static void test_ostream()
     runtime_assert(oss.str() == "{d604557f-6739-4883-b627-bc0a81b84e97}", "test_ostream() #1");
 }
 
-static void test_ostream_wide()
+static void test_ostream_w()
 {
     constexpr auto a = uuid{L"d604557f67394883b627bc0a81b84e97"};
 
@@ -327,7 +381,6 @@ static void test_ostream_wide()
 
     runtime_assert(oss.str() == L"{d604557f-6739-4883-b627-bc0a81b84e97}", "test_ostream() #1");
 }
-
 
 static void test_bytes()
 {
@@ -413,15 +466,18 @@ int main(int argc, char** argv)
         test_random();
         test_time();
         test_parse();
-        test_parse_wide();
+        test_parse_w();
+        test_parse_u8();
         test_parse_error();
-        test_parse_wide_error();
+        test_parse_w_error();
+        test_parse_u8_error();
         test_string();
-        test_string_wide();
+        test_string_w();
+        test_string_u8();
         test_string_error();
-        test_string_wide_error();
+        test_string_w_error();
         test_ostream();
-        test_ostream_wide();
+        test_ostream_w();
         test_bytes();
         test_bytes_error();
         test_map();
