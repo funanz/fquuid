@@ -97,14 +97,18 @@ static void test_parse()
     constexpr auto span = std::span("d604557f-6739-4883-b627-bc0a81b84e97");
     constexpr auto e = uuid{span};
 
+    constexpr const char* ptr = "d604557f-6739-4883-b627-bc0a81b84e97";
+    constexpr auto f = uuid{ptr};
+
     std::string s = "d604557f-6739-4883-b627-bc0a81b84e97";
-    auto f = uuid{s};
+    auto g = uuid{s};
 
     static_assert(a == b, "test_parse() #1");
     static_assert(b == c, "test_parse() #2");
     static_assert(c == d, "test_parse() #3");
     static_assert(d == e, "test_parse() #4");
-    runtime_assert(e == f, "test_parse() #5");
+    static_assert(e == f, "test_parse() #5");
+    runtime_assert(f == g, "test_parse() #6");
 }
 
 static void test_parse_w()
@@ -115,12 +119,16 @@ static void test_parse_w()
     constexpr auto span = std::span(L"d604557f-6739-4883-b627-bc0a81b84e97");
     constexpr auto c = uuid{span};
 
+    constexpr const wchar_t* ptr = L"d604557f-6739-4883-b627-bc0a81b84e97";
+    constexpr auto d = uuid{ptr};
+
     std::wstring s = L"d604557f-6739-4883-b627-bc0a81b84e97";
-    auto d = uuid{s};
+    auto e = uuid{s};
 
     static_assert(a == b, "test_parse_w() #1");
-    static_assert(b == c, "test_parse_w() #1");
-    runtime_assert(d == d, "test_parse_w() #2");
+    static_assert(b == c, "test_parse_w() #2");
+    static_assert(c == d, "test_parse_w() #3");
+    runtime_assert(d == e, "test_parse_w() #4");
 }
 
 static void test_parse_u8()
@@ -131,19 +139,23 @@ static void test_parse_u8()
     constexpr auto span = std::span(u8"d604557f-6739-4883-b627-bc0a81b84e97");
     constexpr auto c = uuid{span};
 
+    constexpr const char8_t* ptr = u8"d604557f-6739-4883-b627-bc0a81b84e97";
+    constexpr auto d = uuid{ptr};
+
     std::u8string s = u8"d604557f-6739-4883-b627-bc0a81b84e97";
-    auto d = uuid{s};
+    auto e = uuid{s};
 
     static_assert(a == b, "test_parse_u8() #1");
-    static_assert(b == c, "test_parse_u8() #1");
-    runtime_assert(d == d, "test_parse_u8() #2");
+    static_assert(b == c, "test_parse_u8() #2");
+    static_assert(c == d, "test_parse_u8() #3");
+    runtime_assert(d == e, "test_parse_u8() #4");
 }
 
 static void test_parse_error()
 {
     try {
-        const char* p = nullptr;
-        uuid{p};
+        const char* ptr = nullptr;
+        uuid{ptr};
         runtime_assert(0, "test_parse_error() #1");
     }
     catch (std::invalid_argument&) {}
