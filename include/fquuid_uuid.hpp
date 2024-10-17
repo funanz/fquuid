@@ -49,7 +49,11 @@ namespace fquuid
         }
 
         constexpr explicit uuid(std::span<const uint8_t> bytes) {
-            uuid_binary::load_from_bytes(u_, bytes);
+            uuid_binary_u8::load_from_bytes(u_, bytes);
+        }
+
+        constexpr explicit uuid(std::span<const std::byte> bytes) {
+            uuid_binary_byte::load_from_bytes(u_, bytes);
         }
 
         constexpr bool operator ==(const uuid& r) const noexcept {
@@ -121,7 +125,11 @@ namespace fquuid
         }
 
         constexpr void to_bytes(std::span<uint8_t> bytes) const {
-            uuid_binary::store_to_bytes(u_, bytes);
+            uuid_binary_u8::store_to_bytes(u_, bytes);
+        }
+
+        constexpr void to_bytes(std::span<std::byte> bytes) const {
+            uuid_binary_byte::store_to_bytes(u_, bytes);
         }
 
         size_t hash() const noexcept {

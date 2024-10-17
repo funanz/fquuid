@@ -1,6 +1,7 @@
 // Copyright 2024 granz.fisherman@gmail.com
 // https://opensource.org/license/mit
 #pragma once
+#include <cstddef>
 #include <cstdint>
 #include <span>
 #include <stdexcept>
@@ -8,9 +9,10 @@
 
 namespace fquuid
 {
-    class uuid_binary
+    template <class ByteT>
+    class uuid_basic_binary
     {
-        static constexpr uint64_t load_u64(std::span<const uint8_t> bytes) {
+        static constexpr uint64_t load_u64(std::span<const ByteT> bytes) {
             return (static_cast<uint64_t>(bytes[0]) << 56 |
                     static_cast<uint64_t>(bytes[1]) << 48 |
                     static_cast<uint64_t>(bytes[2]) << 40 |
@@ -21,19 +23,19 @@ namespace fquuid
                     static_cast<uint64_t>(bytes[7]));
         }
 
-        static constexpr void store_u64(uint64_t x, std::span<uint8_t> bytes) {
-            bytes[0] = static_cast<uint8_t>(x >> 56);
-            bytes[1] = static_cast<uint8_t>(x >> 48);
-            bytes[2] = static_cast<uint8_t>(x >> 40);
-            bytes[3] = static_cast<uint8_t>(x >> 32);
-            bytes[4] = static_cast<uint8_t>(x >> 24);
-            bytes[5] = static_cast<uint8_t>(x >> 16);
-            bytes[6] = static_cast<uint8_t>(x >> 8);
-            bytes[7] = static_cast<uint8_t>(x);
+        static constexpr void store_u64(uint64_t x, std::span<ByteT> bytes) {
+            bytes[0] = static_cast<ByteT>(x >> 56);
+            bytes[1] = static_cast<ByteT>(x >> 48);
+            bytes[2] = static_cast<ByteT>(x >> 40);
+            bytes[3] = static_cast<ByteT>(x >> 32);
+            bytes[4] = static_cast<ByteT>(x >> 24);
+            bytes[5] = static_cast<ByteT>(x >> 16);
+            bytes[6] = static_cast<ByteT>(x >> 8);
+            bytes[7] = static_cast<ByteT>(x);
         }
 
     public:
-        static constexpr void load_from_bytes(uuid_u64& u, std::span<const uint8_t> bytes) {
+        static constexpr void load_from_bytes(uuid_u64& u, std::span<const ByteT> bytes) {
             if (bytes.size() < 16)
                 throw std::invalid_argument("uuid::load_from_bytes() input span size is small");
 
@@ -41,7 +43,7 @@ namespace fquuid
             u[1] = load_u64(bytes.subspan(8, 8));
         }
 
-        static constexpr void store_to_bytes(const uuid_u64& u, std::span<uint8_t> bytes) {
+        static constexpr void store_to_bytes(const uuid_u64& u, std::span<ByteT> bytes) {
             if (bytes.size() < 16)
                 throw std::invalid_argument("uuid::store_to_bytes() output span size is small");
 
@@ -49,4 +51,7 @@ namespace fquuid
             store_u64(u[1], bytes.subspan(8, 8));
         }
     };
+
+    using uuid_binary_u8 = uuid_basic_binary<uint8_t>;
+    using uuid_binary_byte = uuid_basic_binary<std::byte>;
 }

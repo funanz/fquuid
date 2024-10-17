@@ -382,7 +382,7 @@ static void test_ostream_w()
     runtime_assert(oss.str() == L"{d604557f-6739-4883-b627-bc0a81b84e97}", "test_ostream() #1");
 }
 
-static void test_bytes()
+static void test_binary_u8()
 {
     constexpr auto a = uuid{"d604557f-6739-4883-b627-bc0a81b84e97"};
 
@@ -399,18 +399,49 @@ static void test_bytes()
         return bytes;
     }();
 
-    static_assert(a == b, "test_bytes() #1");
-    static_assert(bytes_a == bytes_b, "test_bytes() #2");
+    static_assert(a == b, "test_binary_u8() #1");
+    static_assert(bytes_a == bytes_b, "test_binary_u8() #2");
 }
 
-static void test_bytes_error()
+static void test_binary_byte()
+{
+    constexpr auto a = uuid{"d604557f-6739-4883-b627-bc0a81b84e97"};
+
+    constexpr std::array<std::byte, 16> bytes_a {
+        std::byte(0xd6),std::byte(0x04),std::byte(0x55),std::byte(0x7f),
+        std::byte(0x67),std::byte(0x39),std::byte(0x48),std::byte(0x83),
+        std::byte(0xb6),std::byte(0x27),std::byte(0xbc),std::byte(0x0a),
+        std::byte(0x81),std::byte(0xb8),std::byte(0x4e),std::byte(0x97),
+    };
+
+    constexpr auto b = uuid{bytes_a};
+
+    constexpr auto bytes_b = [&] {
+        std::array<std::byte, 16> bytes;
+        a.to_bytes(bytes);
+        return bytes;
+    }();
+
+    constexpr auto bytes_u8 = [&] {
+        std::array<uint8_t, 16> bytes;
+        a.to_bytes(bytes);
+        return bytes;
+    }();
+    auto c = uuid{std::as_bytes(std::span(bytes_u8))};
+
+    static_assert(a == b, "test_binary_byte() #1");
+    static_assert(bytes_a == bytes_b, "test_binary_byte() #2");
+    runtime_assert(a == c, "test_binary_byte() #3");
+}
+
+static void test_binary_u8_error()
 {
     try {
         constexpr auto a = uuid{"d604557f-6739-4883-b627-bc0a81b84e97"};
 
         std::array<uint8_t, 15> bytes;
         a.to_bytes(bytes);
-        runtime_assert(0, "test_bytes_error() #1");
+        runtime_assert(0, "test_binary_u8_error() #1");
     }
     catch (std::invalid_argument&) {}
 
@@ -421,7 +452,7 @@ static void test_bytes_error()
         };
 
         uuid{bytes};
-        runtime_assert(0, "test_bytes_error() #2");
+        runtime_assert(0, "test_binary_u8_error() #2");
     }
     catch (std::invalid_argument&) {}
 }
@@ -478,8 +509,9 @@ int main(int argc, char** argv)
         test_string_w_error();
         test_ostream();
         test_ostream_w();
-        test_bytes();
-        test_bytes_error();
+        test_binary_u8();
+        test_binary_byte();
+        test_binary_u8_error();
         test_map();
 
         std::cout << "All tests successful" << std::endl;
