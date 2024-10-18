@@ -15,7 +15,7 @@
 
 Using the latest boost
 
-    $ cmake -D CMAKE_INCLUDE_PATH=~/boost-1.86.0 ..
+    $ cmake -D CMAKE_REQUIRED_INCLUDES=~/boost-1.86.0 ..
 
 # Results
 

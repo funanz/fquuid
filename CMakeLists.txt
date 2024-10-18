@@ -11,7 +11,7 @@ project(fquuid)
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_INCLUDE_PATH}
+  ${CMAKE_REQUIRED_INCLUDES}
 )
 
 # fquuid-perf-test
@@ -25,7 +25,6 @@ endif()
 
 # boost-perf-test
 include(CheckIncludeFile)
-set(CMAKE_REQUIRED_INCLUDES ${CMAKE_INCLUDE_PATH})
 check_include_file("boost/version.hpp" HAVE_BOOST)
 if (HAVE_BOOST)
   add_executable(boost-perf-test perf/boost_perf_test.cpp)
