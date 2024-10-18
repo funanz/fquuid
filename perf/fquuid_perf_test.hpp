@@ -4,6 +4,7 @@
 #include <array>
 #include <cstdint>
 #include <exception>
+#include <iostream>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -296,6 +297,9 @@ namespace fquuid
                     (this->*test)();
                 }
                 catch (not_implemented&) {}
+                catch (std::exception& e) {
+                    std::cerr << "error: " << e.what() << std::endl;
+                }
             }
         }
     };
