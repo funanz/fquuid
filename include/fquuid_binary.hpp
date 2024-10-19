@@ -12,26 +12,34 @@ namespace fquuid
     template <class ByteT>
     class uuid_basic_binary
     {
+        static constexpr uint64_t to_u64(ByteT b) {
+            return static_cast<uint8_t>(b);
+        }
+
+        static constexpr ByteT to_byte(uint64_t x) {
+            return static_cast<ByteT>(static_cast<uint8_t>(x));
+        }
+
         static constexpr uint64_t load_u64(std::span<const ByteT> bytes) {
-            return (static_cast<uint64_t>(bytes[0]) << 56 |
-                    static_cast<uint64_t>(bytes[1]) << 48 |
-                    static_cast<uint64_t>(bytes[2]) << 40 |
-                    static_cast<uint64_t>(bytes[3]) << 32 |
-                    static_cast<uint64_t>(bytes[4]) << 24 |
-                    static_cast<uint64_t>(bytes[5]) << 16 |
-                    static_cast<uint64_t>(bytes[6]) << 8 |
-                    static_cast<uint64_t>(bytes[7]));
+            return (to_u64(bytes[0]) << 56 |
+                    to_u64(bytes[1]) << 48 |
+                    to_u64(bytes[2]) << 40 |
+                    to_u64(bytes[3]) << 32 |
+                    to_u64(bytes[4]) << 24 |
+                    to_u64(bytes[5]) << 16 |
+                    to_u64(bytes[6]) << 8 |
+                    to_u64(bytes[7]));
         }
 
         static constexpr void store_u64(uint64_t x, std::span<ByteT> bytes) {
-            bytes[0] = static_cast<ByteT>(x >> 56);
-            bytes[1] = static_cast<ByteT>(x >> 48);
-            bytes[2] = static_cast<ByteT>(x >> 40);
-            bytes[3] = static_cast<ByteT>(x >> 32);
-            bytes[4] = static_cast<ByteT>(x >> 24);
-            bytes[5] = static_cast<ByteT>(x >> 16);
-            bytes[6] = static_cast<ByteT>(x >> 8);
-            bytes[7] = static_cast<ByteT>(x);
+            bytes[0] = to_byte(x >> 56);
+            bytes[1] = to_byte(x >> 48);
+            bytes[2] = to_byte(x >> 40);
+            bytes[3] = to_byte(x >> 32);
+            bytes[4] = to_byte(x >> 24);
+            bytes[5] = to_byte(x >> 16);
+            bytes[6] = to_byte(x >> 8);
+            bytes[7] = to_byte(x);
         }
 
     public:
