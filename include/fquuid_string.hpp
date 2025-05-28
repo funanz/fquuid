@@ -182,4 +182,6 @@ namespace fquuid
     using uuid_string = uuid_basic_string<char>;
     using uuid_wstring = uuid_basic_string<wchar_t>;
     using uuid_u8string = uuid_basic_string<char8_t>;
+    using uuid_u16string = uuid_basic_string<char16_t>;
+    using uuid_u32string = uuid_basic_string<char32_t>;
 }

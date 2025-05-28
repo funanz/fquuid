@@ -36,6 +36,14 @@ namespace fquuid
             uuid_u8string::parse(u_, s);
         }
 
+        constexpr explicit uuid(std::span<const char16_t> s) {
+            uuid_u16string::parse(u_, s);
+        }
+
+        constexpr explicit uuid(std::span<const char32_t> s) {
+            uuid_u32string::parse(u_, s);
+        }
+
         constexpr explicit uuid(const char* s) {
             uuid_string::parse(u_, s);
         }
@@ -46,6 +54,14 @@ namespace fquuid
 
         constexpr explicit uuid(const char8_t* s) {
             uuid_u8string::parse(u_, s);
+        }
+
+        constexpr explicit uuid(const char16_t* s) {
+            uuid_u16string::parse(u_, s);
+        }
+
+        constexpr explicit uuid(const char32_t* s) {
+            uuid_u32string::parse(u_, s);
         }
 
         constexpr explicit uuid(std::span<const uint8_t> bytes) {
@@ -88,6 +104,14 @@ namespace fquuid
             uuid_u8string::to_string(u_, s, false);
         }
 
+        constexpr void to_string(std::span<char16_t> s) const {
+            uuid_u16string::to_string(u_, s, false);
+        }
+
+        constexpr void to_string(std::span<char32_t> s) const {
+            uuid_u32string::to_string(u_, s, false);
+        }
+
         constexpr void to_string_z(std::span<char> s) const {
             uuid_string::to_string(u_, s, true);
         }
@@ -98,6 +122,14 @@ namespace fquuid
 
         constexpr void to_string_z(std::span<char8_t> s) const {
             uuid_u8string::to_string(u_, s, true);
+        }
+
+        constexpr void to_string_z(std::span<char16_t> s) const {
+            uuid_u16string::to_string(u_, s, true);
+        }
+
+        constexpr void to_string_z(std::span<char32_t> s) const {
+            uuid_u32string::to_string(u_, s, true);
         }
 
         std::string to_string() const {
@@ -115,6 +147,18 @@ namespace fquuid
         std::u8string to_u8string() const {
             std::u8string s(36, 0);
             uuid_u8string::to_string(u_, s, false);
+            return s;
+        }
+
+        std::u16string to_u16string() const {
+            std::u16string s(36, 0);
+            uuid_u16string::to_string(u_, s, false);
+            return s;
+        }
+
+        std::u32string to_u32string() const {
+            std::u32string s(36, 0);
+            uuid_u32string::to_string(u_, s, false);
             return s;
         }
 
