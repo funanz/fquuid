@@ -127,7 +127,7 @@ namespace fquuid
             store_u16_hex(x, s.subspan(8, 4));
         }
 
-        static constexpr bool is_standerd_format(std::span<const CharT> s) {
+        static constexpr bool is_standard_format(std::span<const CharT> s) {
             if (s.size() < 36) return false;
 
             return (s[ 8] == '-' && s[13] == '-' &&
@@ -136,7 +136,7 @@ namespace fquuid
 
     public:
         static constexpr void parse(uuid_u64& u, std::span<const CharT> s) {
-            if (is_standerd_format(s)) {
+            if (is_standard_format(s)) {
                 // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
                 u[0] = (load_u32_hex(s.subspan(0, 8)) << 32 |
                         load_u16_hex(s.subspan(9, 4)) << 16 |
