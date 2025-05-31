@@ -144,7 +144,7 @@ static void test_parse()
 static void test_parse_error()
 {
     try {
-        const char* ptr = nullptr;
+        const CharT* ptr = nullptr;
         uuid{ptr};
         runtime_assert(0, "test_parse_error() #1");
     }
