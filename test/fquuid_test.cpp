@@ -13,22 +13,28 @@
 
 using namespace fquuid;
 
-#if CHAR_MODE == 0
+#define CT_CHAR 0
+#define CT_WCHAR_T 1632
+#define CT_CHAR8_T 8
+#define CT_CHAR16_T 16
+#define CT_CHAR32_T 32
+
+#if CHAR_TYPE == CT_CHAR
 #   define CHAR_T char
 #   define S(s) s
-#elif CHAR_MODE == 1632
+#elif CHAR_TYPE == CT_WCHAR_T
 #   define CHAR_T wchar_t
 #   define HAVE_UNICODE 1
 #   define S(s) L##s
-#elif CHAR_MODE == 8
+#elif CHAR_TYPE == CT_CHAR8_T
 #   define CHAR_T char8_t
 #   define HAVE_UNICODE 1
 #   define S(s) u8##s
-#elif CHAR_MODE == 16
+#elif CHAR_TYPE == CT_CHAR16_T
 #   define CHAR_T char16_t
 #   define HAVE_UNICODE 1
 #   define S(s) u##s
-#elif CHAR_MODE == 32
+#elif CHAR_TYPE == CT_CHAR32_T
 #   define CHAR_T char32_t
 #   define HAVE_UNICODE 1
 #   define S(s) U##s
@@ -226,15 +232,15 @@ static void test_string()
 {
     constexpr auto a = uuid{S("d604557f67394883b627bc0a81b84e97")};
 
-#if CHAR_MODE == 0
+#if CHAR_TYPE == CT_CHAR
     auto s1 = a.to_string();
-#elif CHAR_MODE == 1632
+#elif CHAR_TYPE == CT_WCHAR_T
     auto s1 = a.to_wstring();
-#elif CHAR_MODE == 8
+#elif CHAR_TYPE == CT_CHAR8_T
     auto s1 = a.to_u8string();
-#elif CHAR_MODE == 16
+#elif CHAR_TYPE == CT_CHAR16_T
     auto s1 = a.to_u16string();
-#elif CHAR_MODE == 32
+#elif CHAR_TYPE == CT_CHAR32_T
     auto s1 = a.to_u32string();
 #endif
 
