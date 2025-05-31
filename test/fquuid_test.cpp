@@ -240,7 +240,7 @@ static void test_string()
 
     constexpr auto s2_array = [&] {
         std::array<CharT, 40> buf;
-        std::ranges::fill(buf, '*');
+        std::ranges::fill(buf, S('*'));
         a.to_string_z(buf);
         return buf;
     }();
@@ -248,7 +248,7 @@ static void test_string()
 
     constexpr auto s3_array = [&] {
         std::array<CharT, 40> buf;
-        std::ranges::fill(buf, '*');
+        std::ranges::fill(buf, S('*'));
         a.to_string(buf);
         return buf;
     }();
