@@ -405,6 +405,9 @@ static void test_map()
     test_map_impl<std::unordered_map<uuid, String>>();
 }
 
+#define V_TO_S(v) #v
+#define TO_S(m) V_TO_S(m)
+
 int main(int argc, char** argv)
 {
     try {
@@ -423,7 +426,9 @@ int main(int argc, char** argv)
         test_binary_u8_error();
         test_map();
 
-        std::cout << "All tests successful" << std::endl;
+        std::cout << "All tests successful.\t"
+                  << TO_S(CHAR_T)
+                  << std::endl;
         return 0;
     }
     catch (std::exception& e) {
