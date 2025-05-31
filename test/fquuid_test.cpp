@@ -286,20 +286,10 @@ static void test_ostream()
 {
     constexpr auto a = uuid{S("d604557f67394883b627bc0a81b84e97")};
 
-    std::ostringstream oss;
-    oss << "{" << a << "}";
+    std::basic_ostringstream<CharT> oss;
+    oss << S("{") << a << S("}");
 
-    runtime_assert(oss.str() == "{d604557f-6739-4883-b627-bc0a81b84e97}", "test_ostream() #1");
-}
-
-static void test_ostream_w()
-{
-    constexpr auto a = uuid{S("d604557f67394883b627bc0a81b84e97")};
-
-    std::wostringstream oss;
-    oss << "{" << a << "}";
-
-    runtime_assert(oss.str() == L"{d604557f-6739-4883-b627-bc0a81b84e97}", "test_ostream() #1");
+    runtime_assert(oss.str() == S("{d604557f-6739-4883-b627-bc0a81b84e97}"), "test_ostream() #1");
 }
 
 static void test_binary_u8()
@@ -422,7 +412,6 @@ int main(int argc, char** argv)
         test_string();
         test_string_error();
         test_ostream();
-        test_ostream_w();
         test_binary_u8();
         test_binary_byte();
         test_binary_u8_error();
