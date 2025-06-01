@@ -128,6 +128,13 @@ namespace fquuid
             uuid_binary_byte::store_to_bytes(u_, bytes);
         }
 
+        template <class ByteT = std::byte>
+        constexpr std::array<ByteT, 16> to_bytes() const {
+            std::array<ByteT, 16> bytes;
+            uuid_basic_binary<ByteT>::store_to_bytes(u_, bytes);
+            return bytes;
+        }
+
         size_t hash() const noexcept {
             std::hash<uint64_t> h;
 

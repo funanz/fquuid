@@ -308,8 +308,11 @@ void test_binary_impl()
         return bytes;
     }();
 
+    constexpr auto bytes_c = a.to_bytes<ByteT>();
+
     static_assert(a == b, "test_binary_impl() #1");
     static_assert(bytes_a == bytes_b, "test_binary_impl() #2");
+    static_assert(bytes_a == bytes_c, "test_binary_impl() #3");
 }
 
 static void test_binary()
