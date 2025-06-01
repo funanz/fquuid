@@ -84,7 +84,7 @@ namespace fquuid
             return u_ <=> r.u_;
         }
 
-        constexpr bool is_zero() const noexcept {
+        constexpr bool is_nil() const noexcept {
             return u_[0] == 0 && u_[1] == 0;
         }
 

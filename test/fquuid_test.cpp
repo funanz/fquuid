@@ -45,14 +45,14 @@ using String = std::basic_string<CharT>;
 
 #define runtime_assert(expr, msg) [](bool ok){ if (!ok) throw std::runtime_error(msg " " #expr); }(expr)
 
-static void test_zero()
+static void test_nil()
 {
     constexpr uuid a;
     constexpr uuid b {S("d604557f-6739-4883-b627-bc0a81b84e97")};
 
-    static_assert(a.is_zero(), "test_zero() #1");
-    static_assert(!b.is_zero(), "test_zero() #2");
-    runtime_assert(a.to_string() == "00000000-0000-0000-0000-000000000000", "test_zero() #3");
+    static_assert(a.is_nil(), "test_nil() #1");
+    static_assert(!b.is_nil(), "test_nil() #2");
+    runtime_assert(a.to_string() == "00000000-0000-0000-0000-000000000000", "test_nil() #3");
 }
 
 static void test_compare()
@@ -401,7 +401,7 @@ static void test_map()
 int main(int argc, char** argv)
 {
     try {
-        test_zero();
+        test_nil();
         test_compare();
         test_random();
         test_time();
