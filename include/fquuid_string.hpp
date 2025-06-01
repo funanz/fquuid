@@ -161,8 +161,8 @@ namespace fquuid
             parse(u, std::basic_string_view<CharT>(s));
         }
 
-        static constexpr void write(const uuid_u64& u, std::span<CharT> s, bool null_terminate) {
-            size_t size = null_terminate ? 37 : 36;
+        static constexpr void write(const uuid_u64& u, std::span<CharT> s, string_terminator term) {
+            size_t size = (term == string_terminator::null) ? 37 : 36;
             if (s.size() < size)
                 throw std::invalid_argument("uuid::write() output span size is small");
 
@@ -174,7 +174,7 @@ namespace fquuid
 
             s[8] = s[13] = s[18] = s[23] = '-';
 
-            if (null_terminate)
+            if (term == string_terminator::null)
                 s[36] = 0;
         }
     };

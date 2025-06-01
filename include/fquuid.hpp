@@ -7,6 +7,8 @@
 namespace fquuid
 {
     using uuid_u64 = std::array<uint64_t, 2>;
+
+    enum class string_terminator { none, null };
 }
 
 #include "fquuid_random.hpp"

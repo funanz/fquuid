@@ -245,7 +245,7 @@ static void test_string()
     constexpr auto s3_array = [&] {
         std::array<CharT, 40> buf;
         std::ranges::fill(buf, S('*'));
-        a.write_string_without_null(buf);
+        a.write_string(buf, string_terminator::none);
         return buf;
     }();
     String s3(s3_array.data(), s3_array.size());
@@ -263,7 +263,7 @@ static void test_string_error()
         constexpr auto a = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97")};
 
         std::array<CharT, 35> buf;
-        a.write_string_without_null(buf);
+        a.write_string(buf, string_terminator::none);
         runtime_assert(0, "test_string_error() #1");
     }
     catch (std::invalid_argument&) {}

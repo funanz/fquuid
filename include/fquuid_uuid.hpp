@@ -92,44 +92,24 @@ namespace fquuid
             return (u_[0] >> 12) & 0xf;
         }
 
-        constexpr void write_string_without_null(std::span<char> s) const {
-            uuid_string::write(u_, s, false);
+        constexpr void write_string(std::span<char> s, string_terminator term = string_terminator::null) const {
+            uuid_string::write(u_, s, term);
         }
 
-        constexpr void write_string_without_null(std::span<wchar_t> s) const {
-            uuid_wstring::write(u_, s, false);
+        constexpr void write_string(std::span<wchar_t> s, string_terminator term = string_terminator::null) const {
+            uuid_wstring::write(u_, s, term);
         }
 
-        constexpr void write_string_without_null(std::span<char8_t> s) const {
-            uuid_u8string::write(u_, s, false);
+        constexpr void write_string(std::span<char8_t> s, string_terminator term = string_terminator::null) const {
+            uuid_u8string::write(u_, s, term);
         }
 
-        constexpr void write_string_without_null(std::span<char16_t> s) const {
-            uuid_u16string::write(u_, s, false);
+        constexpr void write_string(std::span<char16_t> s, string_terminator term = string_terminator::null) const {
+            uuid_u16string::write(u_, s, term);
         }
 
-        constexpr void write_string_without_null(std::span<char32_t> s) const {
-            uuid_u32string::write(u_, s, false);
-        }
-
-        constexpr void write_string(std::span<char> s) const {
-            uuid_string::write(u_, s, true);
-        }
-
-        constexpr void write_string(std::span<wchar_t> s) const {
-            uuid_wstring::write(u_, s, true);
-        }
-
-        constexpr void write_string(std::span<char8_t> s) const {
-            uuid_u8string::write(u_, s, true);
-        }
-
-        constexpr void write_string(std::span<char16_t> s) const {
-            uuid_u16string::write(u_, s, true);
-        }
-
-        constexpr void write_string(std::span<char32_t> s) const {
-            uuid_u32string::write(u_, s, true);
+        constexpr void write_string(std::span<char32_t> s, string_terminator term = string_terminator::null) const {
+            uuid_u32string::write(u_, s, term);
         }
 
         template <class String = std::string>
@@ -137,13 +117,13 @@ namespace fquuid
             using CharT = typename String::value_type;
 
             String s(36, 0);
-            uuid_basic_string<CharT>::write(u_, s, false);
+            uuid_basic_string<CharT>::write(u_, s, string_terminator::none);
             return s;
         }
 
         void println() const {
             std::array<char, 37> a;
-            uuid_string::write(u_, a, true);
+            uuid_string::write(u_, a, string_terminator::null);
             puts(a.data());
         }
 
