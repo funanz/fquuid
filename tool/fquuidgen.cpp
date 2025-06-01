@@ -1,5 +1,6 @@
 // Copyright 2024 granz.fisherman@gmail.com
 // https://opensource.org/license/mit
+#include <cstdio>
 #include <iostream>
 #include <span>
 #include <string>
@@ -30,6 +31,13 @@ enum class gen_mode {
     v7,
 };
 
+static void println(const fquuid::uuid& u)
+{
+    std::array<char, 37> buf;
+    u.write_string(buf);
+    puts(buf.data());
+}
+
 int main(int argc, char** argv)
 {
     gen_mode mode = gen_mode::v4;
@@ -52,9 +60,9 @@ int main(int argc, char** argv)
     fquuid::uuid_random rng;
     do {
         if (mode == gen_mode::v4)
-            fquuid::uuid_generator_v4::generate(rng).println();
+            println(fquuid::uuid_generator_v4::generate(rng));
         else if (mode == gen_mode::v7)
-            fquuid::uuid_generator_v7::generate(rng).println();
+            println(fquuid::uuid_generator_v7::generate(rng));
         else
             break;
     } while (inf_loop);

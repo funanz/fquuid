@@ -4,7 +4,6 @@
 #include <array>
 #include <compare>
 #include <cstdint>
-#include <cstdio>
 #include <functional>
 #include <ostream>
 #include <span>
@@ -119,12 +118,6 @@ namespace fquuid
             String s(36, 0);
             uuid_basic_string<CharT>::write(u_, s, string_terminator::none);
             return s;
-        }
-
-        void println() const {
-            std::array<char, 37> a;
-            uuid_string::write(u_, a, string_terminator::null);
-            puts(a.data());
         }
 
         constexpr void write_bytes(std::span<uint8_t> bytes) const {
