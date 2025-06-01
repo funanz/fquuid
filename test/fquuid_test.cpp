@@ -232,17 +232,7 @@ static void test_string()
 {
     constexpr auto a = uuid{S("d604557f67394883b627bc0a81b84e97")};
 
-#if CHAR_TYPE == CT_CHAR
-    auto s1 = a.to_string();
-#elif CHAR_TYPE == CT_WCHAR_T
-    auto s1 = a.to_wstring();
-#elif CHAR_TYPE == CT_CHAR8_T
-    auto s1 = a.to_u8string();
-#elif CHAR_TYPE == CT_CHAR16_T
-    auto s1 = a.to_u16string();
-#elif CHAR_TYPE == CT_CHAR32_T
-    auto s1 = a.to_u32string();
-#endif
+    auto s1 = a.to_string<String>();
 
     constexpr auto s2_array = [&] {
         std::array<CharT, 40> buf;

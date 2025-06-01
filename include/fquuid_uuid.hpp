@@ -132,33 +132,12 @@ namespace fquuid
             uuid_u32string::to_string(u_, s, true);
         }
 
-        std::string to_string() const {
-            std::string s(36, 0);
-            uuid_string::to_string(u_, s, false);
-            return s;
-        }
+        template <class String = std::string>
+        String to_string() const {
+            using CharT = typename String::value_type;
 
-        std::wstring to_wstring() const {
-            std::wstring s(36, 0);
-            uuid_wstring::to_string(u_, s, false);
-            return s;
-        }
-
-        std::u8string to_u8string() const {
-            std::u8string s(36, 0);
-            uuid_u8string::to_string(u_, s, false);
-            return s;
-        }
-
-        std::u16string to_u16string() const {
-            std::u16string s(36, 0);
-            uuid_u16string::to_string(u_, s, false);
-            return s;
-        }
-
-        std::u32string to_u32string() const {
-            std::u32string s(36, 0);
-            uuid_u32string::to_string(u_, s, false);
+            String s(36, 0);
+            uuid_basic_string<CharT>::to_string(u_, s, false);
             return s;
         }
 
