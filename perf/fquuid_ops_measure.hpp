@@ -7,6 +7,7 @@
 #include <concepts>
 #include <cstdint>
 #include <functional>
+#include <iomanip>
 #include <iostream>
 #include <span>
 #include <stdexcept>
