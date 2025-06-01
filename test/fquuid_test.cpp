@@ -237,7 +237,7 @@ static void test_string()
     constexpr auto s2_array = [&] {
         std::array<CharT, 40> buf;
         std::ranges::fill(buf, S('*'));
-        a.to_string_z(buf);
+        a.write_string(buf);
         return buf;
     }();
     String s2(s2_array.data());
@@ -245,7 +245,7 @@ static void test_string()
     constexpr auto s3_array = [&] {
         std::array<CharT, 40> buf;
         std::ranges::fill(buf, S('*'));
-        a.to_string(buf);
+        a.write_string_without_null(buf);
         return buf;
     }();
     String s3(s3_array.data(), s3_array.size());
@@ -263,7 +263,7 @@ static void test_string_error()
         constexpr auto a = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97")};
 
         std::array<CharT, 35> buf;
-        a.to_string(buf);
+        a.write_string_without_null(buf);
         runtime_assert(0, "test_string_error() #1");
     }
     catch (std::invalid_argument&) {}
@@ -272,7 +272,7 @@ static void test_string_error()
         constexpr auto a = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97")};
 
         std::array<CharT, 36> buf;
-        a.to_string_z(buf);
+        a.write_string(buf);
         runtime_assert(0, "test_string_error() #2");
     }
     catch (std::invalid_argument&) {}
@@ -301,7 +301,7 @@ static void test_binary_u8()
 
     constexpr auto bytes_b = [&] {
         std::array<uint8_t, 16> bytes;
-        a.to_bytes(bytes);
+        a.write_bytes(bytes);
         return bytes;
     }();
 
@@ -324,13 +324,13 @@ static void test_binary_byte()
 
     constexpr auto bytes_b = [&] {
         std::array<std::byte, 16> bytes;
-        a.to_bytes(bytes);
+        a.write_bytes(bytes);
         return bytes;
     }();
 
     constexpr auto bytes_u8 = [&] {
         std::array<uint8_t, 16> bytes;
-        a.to_bytes(bytes);
+        a.write_bytes(bytes);
         return bytes;
     }();
     auto c = uuid{std::as_bytes(std::span(bytes_u8))};
@@ -346,7 +346,7 @@ static void test_binary_u8_error()
         constexpr auto a = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97")};
 
         std::array<uint8_t, 15> bytes;
-        a.to_bytes(bytes);
+        a.write_bytes(bytes);
         runtime_assert(0, "test_binary_u8_error() #1");
     }
     catch (std::invalid_argument&) {}

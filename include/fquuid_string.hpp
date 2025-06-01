@@ -161,10 +161,10 @@ namespace fquuid
             parse(u, std::basic_string_view<CharT>(s));
         }
 
-        static constexpr void to_string(const uuid_u64& u, std::span<CharT> s, bool null_terminate) {
+        static constexpr void write(const uuid_u64& u, std::span<CharT> s, bool null_terminate) {
             size_t size = null_terminate ? 37 : 36;
             if (s.size() < size)
-                throw std::invalid_argument("uuid::to_string() output span size is small");
+                throw std::invalid_argument("uuid::write() output span size is small");
 
             store_u32_hex(u[0] >> 32, s.subspan(0, 8));
             store_u16_hex(u[0] >> 16, s.subspan(9, 4));

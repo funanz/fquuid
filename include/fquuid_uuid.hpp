@@ -92,44 +92,44 @@ namespace fquuid
             return (u_[0] >> 12) & 0xf;
         }
 
-        constexpr void to_string(std::span<char> s) const {
-            uuid_string::to_string(u_, s, false);
+        constexpr void write_string_without_null(std::span<char> s) const {
+            uuid_string::write(u_, s, false);
         }
 
-        constexpr void to_string(std::span<wchar_t> s) const {
-            uuid_wstring::to_string(u_, s, false);
+        constexpr void write_string_without_null(std::span<wchar_t> s) const {
+            uuid_wstring::write(u_, s, false);
         }
 
-        constexpr void to_string(std::span<char8_t> s) const {
-            uuid_u8string::to_string(u_, s, false);
+        constexpr void write_string_without_null(std::span<char8_t> s) const {
+            uuid_u8string::write(u_, s, false);
         }
 
-        constexpr void to_string(std::span<char16_t> s) const {
-            uuid_u16string::to_string(u_, s, false);
+        constexpr void write_string_without_null(std::span<char16_t> s) const {
+            uuid_u16string::write(u_, s, false);
         }
 
-        constexpr void to_string(std::span<char32_t> s) const {
-            uuid_u32string::to_string(u_, s, false);
+        constexpr void write_string_without_null(std::span<char32_t> s) const {
+            uuid_u32string::write(u_, s, false);
         }
 
-        constexpr void to_string_z(std::span<char> s) const {
-            uuid_string::to_string(u_, s, true);
+        constexpr void write_string(std::span<char> s) const {
+            uuid_string::write(u_, s, true);
         }
 
-        constexpr void to_string_z(std::span<wchar_t> s) const {
-            uuid_wstring::to_string(u_, s, true);
+        constexpr void write_string(std::span<wchar_t> s) const {
+            uuid_wstring::write(u_, s, true);
         }
 
-        constexpr void to_string_z(std::span<char8_t> s) const {
-            uuid_u8string::to_string(u_, s, true);
+        constexpr void write_string(std::span<char8_t> s) const {
+            uuid_u8string::write(u_, s, true);
         }
 
-        constexpr void to_string_z(std::span<char16_t> s) const {
-            uuid_u16string::to_string(u_, s, true);
+        constexpr void write_string(std::span<char16_t> s) const {
+            uuid_u16string::write(u_, s, true);
         }
 
-        constexpr void to_string_z(std::span<char32_t> s) const {
-            uuid_u32string::to_string(u_, s, true);
+        constexpr void write_string(std::span<char32_t> s) const {
+            uuid_u32string::write(u_, s, true);
         }
 
         template <class String = std::string>
@@ -137,21 +137,21 @@ namespace fquuid
             using CharT = typename String::value_type;
 
             String s(36, 0);
-            uuid_basic_string<CharT>::to_string(u_, s, false);
+            uuid_basic_string<CharT>::write(u_, s, false);
             return s;
         }
 
         void println() const {
             std::array<char, 37> a;
-            uuid_string::to_string(u_, a, true);
+            uuid_string::write(u_, a, true);
             puts(a.data());
         }
 
-        constexpr void to_bytes(std::span<uint8_t> bytes) const {
+        constexpr void write_bytes(std::span<uint8_t> bytes) const {
             uuid_binary_u8::store_to_bytes(u_, bytes);
         }
 
-        constexpr void to_bytes(std::span<std::byte> bytes) const {
+        constexpr void write_bytes(std::span<std::byte> bytes) const {
             uuid_binary_byte::store_to_bytes(u_, bytes);
         }
 
@@ -165,7 +165,7 @@ namespace fquuid
     template <class CharT, class Traits>
     auto& operator <<(std::basic_ostream<CharT, Traits>& os, const uuid& u) {
         std::array<CharT, 37> buf;
-        u.to_string_z(buf);
+        u.write_string(buf);
         return os << buf.data();
     }
 }
