@@ -9,6 +9,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include "fquuid_string.hpp"
 #include "fquuid_binary.hpp"
 
@@ -129,6 +130,7 @@ namespace fquuid
         }
 
         template <class ByteT = std::byte>
+        requires (std::is_trivially_copyable_v<ByteT> && sizeof(ByteT) == 1)
         constexpr std::array<ByteT, 16> to_bytes() const {
             std::array<ByteT, 16> bytes;
             uuid_basic_binary<ByteT>::store_to_bytes(u_, bytes);
