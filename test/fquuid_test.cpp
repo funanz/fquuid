@@ -288,79 +288,66 @@ static void test_ostream()
     runtime_assert(oss.str() == S("{d604557f-6739-4883-b627-bc0a81b84e97}"), "test_ostream() #1");
 }
 
-static void test_binary_u8()
+template <class ByteT>
+void test_binary_impl()
 {
     constexpr auto a = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97")};
 
-    constexpr std::array<uint8_t, 16> bytes_a {
-        0xd6,0x04,0x55,0x7f,0x67,0x39,0x48,0x83,
-        0xb6,0x27,0xbc,0x0a,0x81,0xb8,0x4e,0x97,
+    constexpr std::array<ByteT, 16> bytes_a {
+        ByteT(0xd6), ByteT(0x04), ByteT(0x55), ByteT(0x7f),
+        ByteT(0x67), ByteT(0x39), ByteT(0x48), ByteT(0x83),
+        ByteT(0xb6), ByteT(0x27), ByteT(0xbc), ByteT(0x0a),
+        ByteT(0x81), ByteT(0xb8), ByteT(0x4e), ByteT(0x97),
     };
 
     constexpr auto b = uuid{bytes_a};
 
     constexpr auto bytes_b = [&] {
-        std::array<uint8_t, 16> bytes;
+        std::array<ByteT, 16> bytes;
         a.write_bytes(bytes);
         return bytes;
     }();
 
-    static_assert(a == b, "test_binary_u8() #1");
-    static_assert(bytes_a == bytes_b, "test_binary_u8() #2");
+    static_assert(a == b, "test_binary_impl() #1");
+    static_assert(bytes_a == bytes_b, "test_binary_impl() #2");
 }
 
-static void test_binary_byte()
+static void test_binary()
 {
-    constexpr auto a = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97")};
-
-    constexpr std::array<std::byte, 16> bytes_a {
-        std::byte(0xd6),std::byte(0x04),std::byte(0x55),std::byte(0x7f),
-        std::byte(0x67),std::byte(0x39),std::byte(0x48),std::byte(0x83),
-        std::byte(0xb6),std::byte(0x27),std::byte(0xbc),std::byte(0x0a),
-        std::byte(0x81),std::byte(0xb8),std::byte(0x4e),std::byte(0x97),
-    };
-
-    constexpr auto b = uuid{bytes_a};
-
-    constexpr auto bytes_b = [&] {
-        std::array<std::byte, 16> bytes;
-        a.write_bytes(bytes);
-        return bytes;
-    }();
-
-    constexpr auto bytes_u8 = [&] {
-        std::array<uint8_t, 16> bytes;
-        a.write_bytes(bytes);
-        return bytes;
-    }();
-    auto c = uuid{std::as_bytes(std::span(bytes_u8))};
-
-    static_assert(a == b, "test_binary_byte() #1");
-    static_assert(bytes_a == bytes_b, "test_binary_byte() #2");
-    runtime_assert(a == c, "test_binary_byte() #3");
+    test_binary_impl<std::byte>();
+    test_binary_impl<uint8_t>();
 }
 
-static void test_binary_u8_error()
+template <class ByteT>
+void test_binary_error_impl()
 {
     try {
         constexpr auto a = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97")};
 
-        std::array<uint8_t, 15> bytes;
+        std::array<ByteT, 15> bytes;
         a.write_bytes(bytes);
-        runtime_assert(0, "test_binary_u8_error() #1");
+        runtime_assert(0, "test_binary_error_impl() #1");
     }
     catch (std::invalid_argument&) {}
 
     try {
-        constexpr std::array<uint8_t, 15> bytes {
-            0xd6,0x04,0x55,0x7f,0x67,0x39,0x48,0x83,
-            0xb6,0x27,0xbc,0x0a,0x81,0xb8,0x4e,
+        constexpr std::array<ByteT, 15> bytes {
+            ByteT(0xd6), ByteT(0x04), ByteT(0x55), ByteT(0x7f),
+            ByteT(0x67), ByteT(0x39), ByteT(0x48), ByteT(0x83),
+            ByteT(0xb6), ByteT(0x27), ByteT(0xbc), ByteT(0x0a),
+            ByteT(0x81), ByteT(0xb8), ByteT(0x4e),
         };
 
         uuid{bytes};
-        runtime_assert(0, "test_binary_u8_error() #2");
+        runtime_assert(0, "test_binary_error_impl() #2");
     }
     catch (std::invalid_argument&) {}
+}
+
+static void test_binary_error()
+{
+    test_binary_error_impl<std::byte>();
+    test_binary_error_impl<uint8_t>();
 }
 
 template <class Map>
@@ -411,9 +398,8 @@ int main(int argc, char** argv)
         test_string();
         test_string_error();
         test_ostream();
-        test_binary_u8();
-        test_binary_byte();
-        test_binary_u8_error();
+        test_binary();
+        test_binary_error();
         test_map();
 
         std::cout << "All tests successful.\t"
