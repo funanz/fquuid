@@ -127,30 +127,46 @@ namespace fquuid::detail
             store_u16_hex(x, s.subspan(8, 4));
         }
 
-        static constexpr bool is_standard_format(std::span<const CharT> s) {
-            if (s.size() < 36) return false;
+        static constexpr std::span<const CharT> trim_null_terminator(std::span<const CharT> s) {
+            if (s.size() >= 1 && s[s.size() - 1] == 0)
+                return s.first(s.size() - 1);
+            return s;
+        }
 
+        static constexpr std::span<const CharT> trim_braces(std::span<const CharT> s) {
+            if (s.size() >= 2 && s[0] == '{' && s[s.size() - 1] == '}')
+                return s.subspan(1, s.size() - 2);
+            return s;
+        }
+
+        static constexpr bool is_standard_format(std::span<const CharT> s) {
             return (s[ 8] == '-' && s[13] == '-' &&
                     s[18] == '-' && s[23] == '-');
         }
 
     public:
         static constexpr void parse(uuid_u64& u, std::span<const CharT> s) {
-            if (is_standard_format(s)) {
+            // {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}\0
+            auto t = trim_braces(trim_null_terminator(s));
+
+            if (t.size() == 36) {
                 // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-                u[0] = (load_u32_hex(s.subspan(0, 8)) << 32 |
-                        load_u16_hex(s.subspan(9, 4)) << 16 |
-                        load_u16_hex(s.subspan(14, 4)));
-                u[1] = (load_u16_hex(s.subspan(19, 4)) << 48 |
-                        load_u48_hex(s.subspan(24, 12)));
+                if (!is_standard_format(t))
+                    throw std::invalid_argument("uuid::parse() invalid UUID format");
+
+                u[0] = (load_u32_hex(t.subspan(0, 8)) << 32 |
+                        load_u16_hex(t.subspan(9, 4)) << 16 |
+                        load_u16_hex(t.subspan(14, 4)));
+                u[1] = (load_u16_hex(t.subspan(19, 4)) << 48 |
+                        load_u48_hex(t.subspan(24, 12)));
             }
-            else if (s.size() >= 32) {
+            else if (t.size() == 32) {
                 // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-                u[0] = load_u64_hex(s.subspan(0, 16));
-                u[1] = load_u64_hex(s.subspan(16, 16));
+                u[0] = load_u64_hex(t.subspan(0, 16));
+                u[1] = load_u64_hex(t.subspan(16, 16));
             }
             else {
-                throw std::invalid_argument("uuid::parse() input span size is small");
+                throw std::invalid_argument("uuid::parse() invalid UUID string length");
             }
         }
 

@@ -119,26 +119,28 @@ static void test_time()
 
 static void test_parse()
 {
-    constexpr auto a = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97")};
-    constexpr auto b = uuid{S("d604557f67394883b627bc0a81b84e97")};
-    constexpr auto c = uuid{S("d604557f67394883b627bc0a81b84e97\n")};
-    constexpr auto d = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97000")};
+    constexpr auto a = uuid{S("{d604557f-6739-4883-b627-bc0a81b84e97}")};
+    constexpr auto b = uuid{S("{d604557f67394883b627bc0a81b84e97}")};
+    constexpr auto c = uuid{S("d604557f-6739-4883-b627-bc0a81b84e97")};
+    constexpr auto d = uuid{S("d604557f67394883b627bc0a81b84e97")};
+    constexpr auto e = uuid{S("D604557F-6739-4883-B627-BC0A81B84E97")};
 
     constexpr auto span = std::span(S("d604557f-6739-4883-b627-bc0a81b84e97"));
-    constexpr auto e = uuid{span};
+    constexpr auto f = uuid{span};
 
     constexpr const CharT* ptr = S("d604557f-6739-4883-b627-bc0a81b84e97");
-    constexpr auto f = uuid{ptr};
+    constexpr auto g = uuid{ptr};
 
     String s = S("d604557f-6739-4883-b627-bc0a81b84e97");
-    auto g = uuid{s};
+    auto h = uuid{s};
 
     static_assert(a == b, "test_parse() #1");
     static_assert(b == c, "test_parse() #2");
     static_assert(c == d, "test_parse() #3");
     static_assert(d == e, "test_parse() #4");
     static_assert(e == f, "test_parse() #5");
-    runtime_assert(f == g, "test_parse() #6");
+    static_assert(f == g, "test_parse() #6");
+    runtime_assert(g == h, "test_parse() #7");
 }
 
 static void test_parse_error()
@@ -213,6 +215,54 @@ static void test_parse_error()
     try {
         uuid{S("d604557f-6739-4883-b627-xc0a81b84e97")};
         runtime_assert(0, "test_parse_error() #11");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("{d604557f-6739-4883-b627-bc0a81b84e97")};
+        runtime_assert(0, "test_parse_error() #12");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("d604557f-6739-4883-b627-bc0a81b84e97}")};
+        runtime_assert(0, "test_parse_error() #13");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("d604557f67394883b627bc0a81b84e97\n")};
+        runtime_assert(0, "test_parse_error() #14");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("d604557f-6739-4883-b627-bc0a81b84e97000")};
+        runtime_assert(0, "test_parse_error() #15");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("d604557f=6739-4883-b627-bc0a81b84e97")};
+        runtime_assert(0, "test_parse_error() #16");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("d604557f-6739=4883-b627-bc0a81b84e97")};
+        runtime_assert(0, "test_parse_error() #17");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("d604557f-6739-4883=b627-bc0a81b84e97")};
+        runtime_assert(0, "test_parse_error() #18");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("d604557f-6739-4883-b627=bc0a81b84e97")};
+        runtime_assert(0, "test_parse_error() #19");
     }
     catch (std::invalid_argument&) {}
 }
