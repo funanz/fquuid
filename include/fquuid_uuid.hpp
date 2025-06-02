@@ -9,6 +9,7 @@
 #include <span>
 #include <stdexcept>
 #include <string>
+#include "fquuid_types.hpp"
 #include "fquuid_string.hpp"
 #include "fquuid_binary.hpp"
 
@@ -24,51 +25,51 @@ namespace fquuid
         constexpr explicit uuid(const uuid_u64& u) noexcept : u_(u) {}
 
         constexpr explicit uuid(std::span<const char> s) {
-            uuid_string::parse(u_, s);
+            detail::uuid_string::parse(u_, s);
         }
 
         constexpr explicit uuid(std::span<const wchar_t> s) {
-            uuid_wstring::parse(u_, s);
+            detail::uuid_wstring::parse(u_, s);
         }
 
         constexpr explicit uuid(std::span<const char8_t> s) {
-            uuid_u8string::parse(u_, s);
+            detail::uuid_u8string::parse(u_, s);
         }
 
         constexpr explicit uuid(std::span<const char16_t> s) {
-            uuid_u16string::parse(u_, s);
+            detail::uuid_u16string::parse(u_, s);
         }
 
         constexpr explicit uuid(std::span<const char32_t> s) {
-            uuid_u32string::parse(u_, s);
+            detail::uuid_u32string::parse(u_, s);
         }
 
         constexpr explicit uuid(const char* s) {
-            uuid_string::parse(u_, s);
+            detail::uuid_string::parse(u_, s);
         }
 
         constexpr explicit uuid(const wchar_t* s) {
-            uuid_wstring::parse(u_, s);
+            detail::uuid_wstring::parse(u_, s);
         }
 
         constexpr explicit uuid(const char8_t* s) {
-            uuid_u8string::parse(u_, s);
+            detail::uuid_u8string::parse(u_, s);
         }
 
         constexpr explicit uuid(const char16_t* s) {
-            uuid_u16string::parse(u_, s);
+            detail::uuid_u16string::parse(u_, s);
         }
 
         constexpr explicit uuid(const char32_t* s) {
-            uuid_u32string::parse(u_, s);
+            detail::uuid_u32string::parse(u_, s);
         }
 
         constexpr explicit uuid(std::span<const uint8_t> bytes) {
-            uuid_binary_u8::load_from_bytes(u_, bytes);
+            detail::uuid_binary_u8::load_from_bytes(u_, bytes);
         }
 
         constexpr explicit uuid(std::span<const std::byte> bytes) {
-            uuid_binary_byte::load_from_bytes(u_, bytes);
+            detail::uuid_binary_byte::load_from_bytes(u_, bytes);
         }
 
         constexpr bool operator ==(const uuid& r) const noexcept {
@@ -92,23 +93,23 @@ namespace fquuid
         }
 
         constexpr void write_string(std::span<char> s, string_terminator term = string_terminator::null) const {
-            uuid_string::write(u_, s, term);
+            detail::uuid_string::write(u_, s, term);
         }
 
         constexpr void write_string(std::span<wchar_t> s, string_terminator term = string_terminator::null) const {
-            uuid_wstring::write(u_, s, term);
+            detail::uuid_wstring::write(u_, s, term);
         }
 
         constexpr void write_string(std::span<char8_t> s, string_terminator term = string_terminator::null) const {
-            uuid_u8string::write(u_, s, term);
+            detail::uuid_u8string::write(u_, s, term);
         }
 
         constexpr void write_string(std::span<char16_t> s, string_terminator term = string_terminator::null) const {
-            uuid_u16string::write(u_, s, term);
+            detail::uuid_u16string::write(u_, s, term);
         }
 
         constexpr void write_string(std::span<char32_t> s, string_terminator term = string_terminator::null) const {
-            uuid_u32string::write(u_, s, term);
+            detail::uuid_u32string::write(u_, s, term);
         }
 
         template <class String = std::string>
@@ -116,22 +117,22 @@ namespace fquuid
             using CharT = typename String::value_type;
 
             String s(36, 0);
-            uuid_basic_string<CharT>::write(u_, s, string_terminator::none);
+            detail::uuid_basic_string<CharT>::write(u_, s, string_terminator::none);
             return s;
         }
 
         constexpr void write_bytes(std::span<uint8_t> bytes) const {
-            uuid_binary_u8::store_to_bytes(u_, bytes);
+            detail::uuid_binary_u8::store_to_bytes(u_, bytes);
         }
 
         constexpr void write_bytes(std::span<std::byte> bytes) const {
-            uuid_binary_byte::store_to_bytes(u_, bytes);
+            detail::uuid_binary_byte::store_to_bytes(u_, bytes);
         }
 
         template <ByteLike ByteT = std::byte>
         constexpr std::array<ByteT, 16> to_bytes() const {
             std::array<ByteT, 16> bytes;
-            uuid_basic_binary<ByteT>::store_to_bytes(u_, bytes);
+            detail::uuid_basic_binary<ByteT>::store_to_bytes(u_, bytes);
             return bytes;
         }
 

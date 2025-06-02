@@ -5,9 +5,9 @@
 #include <cstdint>
 #include <span>
 #include <stdexcept>
-#include "fquuid.hpp"
+#include "fquuid_types.hpp"
 
-namespace fquuid
+namespace fquuid::detail
 {
     template <ByteLike ByteT>
     class uuid_basic_binary

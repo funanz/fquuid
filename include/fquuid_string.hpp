@@ -8,9 +8,9 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include "fquuid.hpp"
+#include "fquuid_types.hpp"
 
-namespace fquuid
+namespace fquuid::detail
 {
     template <class CharT>
     class uuid_basic_string

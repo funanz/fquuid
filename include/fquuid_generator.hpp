@@ -58,7 +58,7 @@ namespace fquuid
 
         template <class RNG>
         static uuid generate(RNG& rng) {
-            return generate(rng, uuid_clock::now());
+            return generate(rng, detail::uuid_clock::now());
         }
 
         template <class RNG>

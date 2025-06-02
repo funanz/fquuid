@@ -4,7 +4,7 @@
 #include <chrono>
 #include <cstdint>
 
-namespace fquuid
+namespace fquuid::detail
 {
     class uuid_clock
     {
