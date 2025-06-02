@@ -9,7 +9,7 @@
 
 namespace fquuid
 {
-    template <class ByteT>
+    template <ByteLike ByteT>
     class uuid_basic_binary
     {
         static constexpr uint64_t to_u64(ByteT b) {
@@ -17,7 +17,7 @@ namespace fquuid
         }
 
         static constexpr ByteT to_byte(uint64_t x) {
-            return static_cast<ByteT>(static_cast<uint8_t>(x));
+            return ByteT(static_cast<uint8_t>(x));
         }
 
         static constexpr uint64_t load_u64(std::span<const ByteT> bytes) {

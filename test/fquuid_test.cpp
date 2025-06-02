@@ -288,6 +288,30 @@ static void test_ostream()
     runtime_assert(oss.str() == S("{d604557f-6739-4883-b627-bc0a81b84e97}"), "test_ostream() #1");
 }
 
+static void test_bytelike()
+{
+    enum class enum_uchar : unsigned char { zero = 0 };
+    enum class enum_uint : unsigned int { zero = 0 };
+    struct struct_uchar { unsigned char value; };
+    struct struct_uint { unsigned int value; };
+
+    static_assert(ByteLike<std::byte>);
+    static_assert(ByteLike<uint8_t>);
+    static_assert(ByteLike<unsigned char>);
+    static_assert(ByteLike<char>);
+    static_assert(ByteLike<enum_uchar>);
+    static_assert(ByteLike<struct_uchar>);
+
+    static_assert(!ByteLike<void>);
+    static_assert(!ByteLike<bool>);
+    static_assert(!ByteLike<uint16_t>);
+    static_assert(!ByteLike<float>);
+    static_assert(!ByteLike<char*>);
+    static_assert(!ByteLike<char&>);
+    static_assert(!ByteLike<enum_uint>);
+    static_assert(!ByteLike<struct_uint>);
+}
+
 template <class ByteT>
 void test_binary_impl()
 {
@@ -401,6 +425,7 @@ int main(int argc, char** argv)
         test_string();
         test_string_error();
         test_ostream();
+        test_bytelike();
         test_binary();
         test_binary_error();
         test_map();
