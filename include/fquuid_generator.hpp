@@ -36,7 +36,7 @@ namespace fquuid
         template <class RNG>
         static uuid generate(RNG& rng) {
             std::uniform_int_distribution<uint64_t> dist64;
-            uuid_u64 u;
+            detail::uuid_u64 u;
             u[0] = dist64(rng);
             u[1] = dist64(rng);
 
@@ -65,7 +65,7 @@ namespace fquuid
         static uuid generate(RNG& rng, int64_t ms) {
             std::uniform_int_distribution<uint16_t> dist16;
             std::uniform_int_distribution<uint64_t> dist64;
-            uuid_u64 u;
+            detail::uuid_u64 u;
             u[0] = dist16(rng);
             u[1] = dist64(rng);
 

@@ -17,12 +17,12 @@ namespace fquuid
 {
     class uuid
     {
-        uuid_u64 u_;
+        detail::uuid_u64 u_;
 
     public:
         constexpr uuid() noexcept : u_{} {}
 
-        constexpr explicit uuid(const uuid_u64& u) noexcept : u_(u) {}
+        constexpr explicit uuid(const detail::uuid_u64& u) noexcept : u_(u) {}
 
         constexpr explicit uuid(std::span<const char> s) {
             detail::uuid_string::parse(u_, s);
