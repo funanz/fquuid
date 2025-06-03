@@ -6,6 +6,7 @@
 #include <span>
 #include <stdexcept>
 #include "fquuid_types.hpp"
+#include "fquuid_spanner.hpp"
 
 namespace fquuid::detail
 {
@@ -20,7 +21,7 @@ namespace fquuid::detail
             return ByteT(static_cast<uint8_t>(x));
         }
 
-        static constexpr uint64_t load_u64(std::span<const ByteT> bytes) {
+        static constexpr uint64_t load_u64(std::span<const ByteT, 8> bytes) {
             return (to_u64(bytes[0]) << 56 |
                     to_u64(bytes[1]) << 48 |
                     to_u64(bytes[2]) << 40 |
@@ -31,7 +32,7 @@ namespace fquuid::detail
                     to_u64(bytes[7]));
         }
 
-        static constexpr void store_u64(uint64_t x, std::span<ByteT> bytes) {
+        static constexpr void store_u64(uint64_t x, std::span<ByteT, 8> bytes) {
             bytes[0] = to_byte(x >> 56);
             bytes[1] = to_byte(x >> 48);
             bytes[2] = to_byte(x >> 40);
@@ -44,19 +45,21 @@ namespace fquuid::detail
 
     public:
         static constexpr void load_from_bytes(uuid_u64& u, std::span<const ByteT> bytes) {
-            if (bytes.size() < 16)
-                throw std::invalid_argument("uuid::load_from_bytes() input span size is small");
-
-            u[0] = load_u64(bytes.subspan(0, 8));
-            u[1] = load_u64(bytes.subspan(8, 8));
+            if (auto fixed = try_fixed<16>(bytes); fixed) {
+                u[0] = load_u64(fixed_subspan<0, 8>(*fixed));
+                u[1] = load_u64(fixed_subspan<8, 8>(*fixed));
+            } else {
+                throw std::invalid_argument("uuid:load_from_bytes: input span size is small");
+            }
         }
 
         static constexpr void store_to_bytes(const uuid_u64& u, std::span<ByteT> bytes) {
-            if (bytes.size() < 16)
-                throw std::invalid_argument("uuid::store_to_bytes() output span size is small");
-
-            store_u64(u[0], bytes.subspan(0, 8));
-            store_u64(u[1], bytes.subspan(8, 8));
+            if (auto fixed = try_fixed<16>(bytes); fixed) {
+                store_u64(u[0], fixed_subspan<0, 8>(*fixed));
+                store_u64(u[1], fixed_subspan<8, 8>(*fixed));
+            } else {
+                throw std::invalid_argument("uuid:store_to_bytes: output span size is small");
+            }
         }
     };
 

@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 #include "fquuid_types.hpp"
+#include "fquuid_spanner.hpp"
 
 namespace fquuid::detail
 {
@@ -41,7 +42,7 @@ namespace fquuid::detail
             return hex_to_u4_table[static_cast<size_t>(c) & 0xff];
         }
 
-        static constexpr uint64_t load_u16_hex(std::span<const CharT> s) {
+        static constexpr uint64_t load_u16_hex(std::span<const CharT, 4> s) {
             auto u16e = (hex_to_u4(s[0]) << 12 |
                          hex_to_u4(s[1]) << 8 |
                          hex_to_u4(s[2]) << 4 |
@@ -53,7 +54,7 @@ namespace fquuid::detail
                 return u16e;
         }
 
-        static constexpr uint64_t load_u32_hex(std::span<const CharT> s) {
+        static constexpr uint64_t load_u32_hex(std::span<const CharT, 8> s) {
             auto u32e = (hex_to_u4(s[0]) << 28 |
                          hex_to_u4(s[1]) << 24 |
                          hex_to_u4(s[2]) << 20 |
@@ -69,7 +70,7 @@ namespace fquuid::detail
                 return u32e;
         }
 
-        static constexpr uint64_t load_u48_hex(std::span<const CharT> s) {
+        static constexpr uint64_t load_u48_hex(std::span<const CharT, 12> s) {
             auto u48e = (hex_to_u4(s[0]) << 44 |
                          hex_to_u4(s[1]) << 40 |
                          hex_to_u4(s[2]) << 36 |
@@ -89,9 +90,9 @@ namespace fquuid::detail
                 return u48e;
         }
 
-        static constexpr uint64_t load_u64_hex(std::span<const CharT> s) {
-            return (load_u32_hex(s.subspan(0, 8)) << 32 |
-                    load_u32_hex(s.subspan(8, 8)));
+        static constexpr uint64_t load_u64_hex(std::span<const CharT, 16> s) {
+            return (load_u32_hex(fixed_subspan<0, 8>(s)) << 32 |
+                    load_u32_hex(fixed_subspan<8, 8>(s)));
         }
 
         static constexpr auto u4_to_hex_table = [] {
@@ -109,89 +110,104 @@ namespace fquuid::detail
             return u4_to_hex_table[u4 & 0xf];
         }
 
-        static constexpr void store_u16_hex(uint64_t u16, std::span<CharT> s) {
+        static constexpr void store_u16_hex(uint64_t u16, std::span<CharT, 4> s) {
             s[0] = u4_to_hex(u16 >> 12);
             s[1] = u4_to_hex(u16 >> 8);
             s[2] = u4_to_hex(u16 >> 4);
             s[3] = u4_to_hex(u16);
         }
 
-        static constexpr void store_u32_hex(uint64_t x, std::span<CharT> s) {
-            store_u16_hex(x >> 16, s.subspan(0, 4));
-            store_u16_hex(x, s.subspan(4, 4));
+        static constexpr void store_u32_hex(uint64_t x, std::span<CharT, 8> s) {
+            store_u16_hex(x >> 16, fixed_subspan<0, 4>(s));
+            store_u16_hex(x, fixed_subspan<4, 4>(s));
         }
 
-        static constexpr void store_u48_hex(uint64_t x, std::span<CharT> s) {
-            store_u16_hex(x >> 32, s.subspan(0, 4));
-            store_u16_hex(x >> 16, s.subspan(4, 4));
-            store_u16_hex(x, s.subspan(8, 4));
+        static constexpr void store_u48_hex(uint64_t x, std::span<CharT, 12> s) {
+            store_u16_hex(x >> 32, fixed_subspan<0, 4>(s));
+            store_u16_hex(x >> 16, fixed_subspan<4, 4>(s));
+            store_u16_hex(x, fixed_subspan<8, 4>(s));
         }
 
         static constexpr std::span<const CharT> trim_null_terminator(std::span<const CharT> s) {
-            if (s.size() >= 1 && s[s.size() - 1] == 0)
+            if (s.size() >= 1 && s.back() == 0)
                 return s.first(s.size() - 1);
             return s;
         }
 
         static constexpr std::span<const CharT> trim_braces(std::span<const CharT> s) {
-            if (s.size() >= 2 && s[0] == '{' && s[s.size() - 1] == '}')
+            if (s.size() >= 2 && s.front() == '{' && s.back() == '}')
                 return s.subspan(1, s.size() - 2);
             return s;
         }
 
-        static constexpr bool is_standard_format(std::span<const CharT> s) {
+        static constexpr bool has_dashes(std::span<const CharT, 36> s) {
             return (s[ 8] == '-' && s[13] == '-' &&
                     s[18] == '-' && s[23] == '-');
         }
 
+        // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        static constexpr void parse_standard_format(uuid_u64& u, std::span<const CharT, 36> s) {
+            if (!has_dashes(s))
+                throw std::invalid_argument("uuid::parse() invalid UUID format");
+
+            u[0] = (load_u32_hex(fixed_subspan<0, 8>(s)) << 32 |
+                    load_u16_hex(fixed_subspan<9, 4>(s)) << 16 |
+                    load_u16_hex(fixed_subspan<14, 4>(s)));
+            u[1] = (load_u16_hex(fixed_subspan<19, 4>(s))) << 48 |
+                    load_u48_hex(fixed_subspan<24, 12>(s));
+        }
+
+        // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+        static constexpr void parse_hex_format(uuid_u64& u, std::span<const CharT, 32> s) {
+            u[0] = load_u64_hex(fixed_subspan<0, 16>(s));
+            u[1] = load_u64_hex(fixed_subspan<16, 16>(s));
+        }
+
+        // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+        static constexpr void write_standard_format(const uuid_u64& u, std::span<CharT, 36> s) {
+            store_u32_hex(u[0] >> 32, fixed_subspan<0, 8>(s));
+            store_u16_hex(u[0] >> 16, fixed_subspan<9, 4>(s));
+            store_u16_hex(u[0],       fixed_subspan<14, 4>(s));
+            store_u16_hex(u[1] >> 48, fixed_subspan<19, 4>(s));
+            store_u48_hex(u[1],       fixed_subspan<24, 12>(s));
+
+            s[8] = s[13] = s[18] = s[23] = '-';
+        }
+
     public:
         static constexpr void parse(uuid_u64& u, std::span<const CharT> s) {
-            // {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}\0
-            auto t = trim_braces(trim_null_terminator(s));
+            auto trimmed = trim_braces(trim_null_terminator(s));
 
-            if (t.size() == 36) {
-                // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-                if (!is_standard_format(t))
-                    throw std::invalid_argument("uuid::parse() invalid UUID format");
-
-                u[0] = (load_u32_hex(t.subspan(0, 8)) << 32 |
-                        load_u16_hex(t.subspan(9, 4)) << 16 |
-                        load_u16_hex(t.subspan(14, 4)));
-                u[1] = (load_u16_hex(t.subspan(19, 4)) << 48 |
-                        load_u48_hex(t.subspan(24, 12)));
-            }
-            else if (t.size() == 32) {
-                // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-                u[0] = load_u64_hex(t.subspan(0, 16));
-                u[1] = load_u64_hex(t.subspan(16, 16));
-            }
-            else {
-                throw std::invalid_argument("uuid::parse() invalid UUID string length");
-            }
+            if (auto fixed = try_fixed_equal<36>(trimmed); fixed)
+                parse_standard_format(u, *fixed);
+            else if (auto fixed = try_fixed_equal<32>(trimmed); fixed)
+                parse_hex_format(u, *fixed);
+            else
+                throw std::invalid_argument("uuid:parse: invalid UUID string length");
         }
 
         static constexpr void parse(uuid_u64& u, const CharT* s) {
             if (s == nullptr)
-                throw std::invalid_argument("uuid::parse() argument is nullptr");
+                throw std::invalid_argument("uuid:parse: argument is nullptr");
 
             parse(u, std::basic_string_view<CharT>(s));
         }
 
         static constexpr void write(const uuid_u64& u, std::span<CharT> s, string_terminator term) {
-            size_t size = (term == string_terminator::null) ? 37 : 36;
-            if (s.size() < size)
-                throw std::invalid_argument("uuid::write() output span size is small");
-
-            store_u32_hex(u[0] >> 32, s.subspan(0, 8));
-            store_u16_hex(u[0] >> 16, s.subspan(9, 4));
-            store_u16_hex(u[0],       s.subspan(14, 4));
-            store_u16_hex(u[1] >> 48, s.subspan(19, 4));
-            store_u48_hex(u[1],       s.subspan(24, 12));
-
-            s[8] = s[13] = s[18] = s[23] = '-';
-
-            if (term == string_terminator::null)
-                s[36] = 0;
+            if (term == string_terminator::null) {
+                if (auto fixed = try_fixed<37>(s); fixed) {
+                    write_standard_format(u, fixed_first<36>(*fixed));
+                    fixed->back() = 0;
+                } else {
+                    throw std::invalid_argument("uuid:write: output span size is small");
+                }
+            } else {
+                if (auto fixed = try_fixed<36>(s); fixed) {
+                    write_standard_format(u, *fixed);
+                } else {
+                    throw std::invalid_argument("uuid:write: output span size is small");
+                }
+            }
         }
     };
 
