@@ -45,7 +45,7 @@ namespace fquuid::detail
 
     public:
         static constexpr void load_from_bytes(uuid_u64& u, std::span<const ByteT> bytes) {
-            if (auto fixed = try_fixed<16>(bytes); fixed) {
+            if (auto fixed = try_fixed<16>(bytes)) {
                 u[0] = load_u64(fixed_subspan<0, 8>(*fixed));
                 u[1] = load_u64(fixed_subspan<8, 8>(*fixed));
             } else {
@@ -54,7 +54,7 @@ namespace fquuid::detail
         }
 
         static constexpr void store_to_bytes(const uuid_u64& u, std::span<ByteT> bytes) {
-            if (auto fixed = try_fixed<16>(bytes); fixed) {
+            if (auto fixed = try_fixed<16>(bytes)) {
                 store_u64(u[0], fixed_subspan<0, 8>(*fixed));
                 store_u64(u[1], fixed_subspan<8, 8>(*fixed));
             } else {

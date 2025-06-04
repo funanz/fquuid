@@ -183,9 +183,9 @@ namespace fquuid::detail
         static constexpr void parse(uuid_u64& u, std::span<const CharT> s) {
             auto trimmed = trim_braces(trim_null_terminator(s));
 
-            if (auto fixed = try_fixed_equal<36>(trimmed); fixed)
+            if (auto fixed = try_fixed_equal<36>(trimmed))
                 parse_standard_format(u, *fixed);
-            else if (auto fixed = try_fixed_equal<32>(trimmed); fixed)
+            else if (auto fixed = try_fixed_equal<32>(trimmed))
                 parse_hex_format(u, *fixed);
             else
                 throw std::invalid_argument("uuid:parse: invalid UUID string length");
@@ -200,14 +200,14 @@ namespace fquuid::detail
 
         static constexpr void write(const uuid_u64& u, std::span<CharT> s, string_terminator term) {
             if (term == string_terminator::null) {
-                if (auto fixed = try_fixed<37>(s); fixed) {
+                if (auto fixed = try_fixed<37>(s)) {
                     write_standard_format(u, fixed_first<36>(*fixed));
                     fixed_back(*fixed) = 0;
                 } else {
                     throw std::invalid_argument("uuid:write: output span size is small");
                 }
             } else {
-                if (auto fixed = try_fixed<36>(s); fixed) {
+                if (auto fixed = try_fixed<36>(s)) {
                     write_standard_format(u, *fixed);
                 } else {
                     throw std::invalid_argument("uuid:write: output span size is small");
