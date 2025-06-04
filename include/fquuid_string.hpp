@@ -43,10 +43,10 @@ namespace fquuid::detail
         }
 
         static constexpr uint64_t load_u16_hex(std::span<const CharT, 4> s) {
-            auto u16e = (hex_to_u4(s[0]) << 12 |
-                         hex_to_u4(s[1]) << 8 |
-                         hex_to_u4(s[2]) << 4 |
-                         hex_to_u4(s[3]));
+            auto u16e = (hex_to_u4(fixed_at<0>(s)) << 12 |
+                         hex_to_u4(fixed_at<1>(s)) << 8 |
+                         hex_to_u4(fixed_at<2>(s)) << 4 |
+                         hex_to_u4(fixed_at<3>(s)));
 
             if (u16e >> 16)
                 throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
@@ -55,14 +55,14 @@ namespace fquuid::detail
         }
 
         static constexpr uint64_t load_u32_hex(std::span<const CharT, 8> s) {
-            auto u32e = (hex_to_u4(s[0]) << 28 |
-                         hex_to_u4(s[1]) << 24 |
-                         hex_to_u4(s[2]) << 20 |
-                         hex_to_u4(s[3]) << 16 |
-                         hex_to_u4(s[4]) << 12 |
-                         hex_to_u4(s[5]) << 8 |
-                         hex_to_u4(s[6]) << 4 |
-                         hex_to_u4(s[7]));
+            auto u32e = (hex_to_u4(fixed_at<0>(s)) << 28 |
+                         hex_to_u4(fixed_at<1>(s)) << 24 |
+                         hex_to_u4(fixed_at<2>(s)) << 20 |
+                         hex_to_u4(fixed_at<3>(s)) << 16 |
+                         hex_to_u4(fixed_at<4>(s)) << 12 |
+                         hex_to_u4(fixed_at<5>(s)) << 8 |
+                         hex_to_u4(fixed_at<6>(s)) << 4 |
+                         hex_to_u4(fixed_at<7>(s)));
 
             if (u32e >> 32)
                 throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
@@ -71,18 +71,18 @@ namespace fquuid::detail
         }
 
         static constexpr uint64_t load_u48_hex(std::span<const CharT, 12> s) {
-            auto u48e = (hex_to_u4(s[0]) << 44 |
-                         hex_to_u4(s[1]) << 40 |
-                         hex_to_u4(s[2]) << 36 |
-                         hex_to_u4(s[3]) << 32 |
-                         hex_to_u4(s[4]) << 28 |
-                         hex_to_u4(s[5]) << 24 |
-                         hex_to_u4(s[6]) << 20 |
-                         hex_to_u4(s[7]) << 16 |
-                         hex_to_u4(s[8]) << 12 |
-                         hex_to_u4(s[9]) << 8 |
-                         hex_to_u4(s[10]) << 4 |
-                         hex_to_u4(s[11]));
+            auto u48e = (hex_to_u4(fixed_at<0>(s)) << 44 |
+                         hex_to_u4(fixed_at<1>(s)) << 40 |
+                         hex_to_u4(fixed_at<2>(s)) << 36 |
+                         hex_to_u4(fixed_at<3>(s)) << 32 |
+                         hex_to_u4(fixed_at<4>(s)) << 28 |
+                         hex_to_u4(fixed_at<5>(s)) << 24 |
+                         hex_to_u4(fixed_at<6>(s)) << 20 |
+                         hex_to_u4(fixed_at<7>(s)) << 16 |
+                         hex_to_u4(fixed_at<8>(s)) << 12 |
+                         hex_to_u4(fixed_at<9>(s)) << 8 |
+                         hex_to_u4(fixed_at<10>(s)) << 4 |
+                         hex_to_u4(fixed_at<11>(s)));
 
             if (u48e >> 48)
                 throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
@@ -111,10 +111,10 @@ namespace fquuid::detail
         }
 
         static constexpr void store_u16_hex(uint64_t u16, std::span<CharT, 4> s) {
-            s[0] = u4_to_hex(u16 >> 12);
-            s[1] = u4_to_hex(u16 >> 8);
-            s[2] = u4_to_hex(u16 >> 4);
-            s[3] = u4_to_hex(u16);
+            fixed_at<0>(s) = u4_to_hex(u16 >> 12);
+            fixed_at<1>(s) = u4_to_hex(u16 >> 8);
+            fixed_at<2>(s) = u4_to_hex(u16 >> 4);
+            fixed_at<3>(s) = u4_to_hex(u16);
         }
 
         static constexpr void store_u32_hex(uint64_t x, std::span<CharT, 8> s) {
@@ -141,8 +141,10 @@ namespace fquuid::detail
         }
 
         static constexpr bool has_dashes(std::span<const CharT, 36> s) {
-            return (s[ 8] == '-' && s[13] == '-' &&
-                    s[18] == '-' && s[23] == '-');
+            return (fixed_at<8>(s) == '-' &&
+                    fixed_at<13>(s) == '-' &&
+                    fixed_at<18>(s) == '-' &&
+                    fixed_at<23>(s) == '-');
         }
 
         // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
@@ -171,7 +173,10 @@ namespace fquuid::detail
             store_u16_hex(u[1] >> 48, fixed_subspan<19, 4>(s));
             store_u48_hex(u[1],       fixed_subspan<24, 12>(s));
 
-            s[8] = s[13] = s[18] = s[23] = '-';
+            fixed_at<8>(s) = '-';
+            fixed_at<13>(s) = '-';
+            fixed_at<18>(s) = '-';
+            fixed_at<23>(s) = '-';
         }
 
     public:
@@ -197,7 +202,7 @@ namespace fquuid::detail
             if (term == string_terminator::null) {
                 if (auto fixed = try_fixed<37>(s); fixed) {
                     write_standard_format(u, fixed_first<36>(*fixed));
-                    fixed->back() = 0;
+                    fixed_back(*fixed) = 0;
                 } else {
                     throw std::invalid_argument("uuid:write: output span size is small");
                 }
