@@ -265,6 +265,42 @@ static void test_parse_error()
         runtime_assert(0, "test_parse_error() #19");
     }
     catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("[d604557f-6739-4883-b627-bc0a81b84e97]")};
+        runtime_assert(0, "test_parse_error() #20");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("{d604557f-6739-4883-b627-bc0a81b84e97]")};
+        runtime_assert(0, "test_parse_error() #21");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("[d604557f-6739-4883-b627-bc0a81b84e97}")};
+        runtime_assert(0, "test_parse_error() #22");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("[d604557f67394883b627bc0a81b84e97]")};
+        runtime_assert(0, "test_parse_error() #23");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("{d604557f67394883b627bc0a81b84e97]")};
+        runtime_assert(0, "test_parse_error() #24");
+    }
+    catch (std::invalid_argument&) {}
+
+    try {
+        uuid{S("[d604557f67394883b627bc0a81b84e97}")};
+        runtime_assert(0, "test_parse_error() #25");
+    }
+    catch (std::invalid_argument&) {}
 }
 
 static void test_parse_error_unicode()
