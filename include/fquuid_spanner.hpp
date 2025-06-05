@@ -34,51 +34,51 @@ namespace fquuid::detail
         return src.back();
     }
 
-    template <size_t Size, class T, size_t Extent>
-    constexpr std::span<T, Size> fixed_first(std::span<T, Extent> src) {
-        static_assert(Size != std::dynamic_extent, "Size cannot use std::dynamic_extent");
+    template <size_t Count, class T, size_t Extent>
+    constexpr std::span<T, Count> fixed_first(std::span<T, Extent> src) {
+        static_assert(Count != std::dynamic_extent, "Count cannot use std::dynamic_extent");
         static_assert(Extent != std::dynamic_extent, "Source Extent must be fixed length");
-        static_assert(Extent >= Size, "Source length is insufficient");
+        static_assert(Extent >= Count, "Source length is insufficient");
 
-        return src.template first<Size>();
+        return src.template first<Count>();
     }
 
-    template <size_t Size, class T, size_t Extent>
-    constexpr std::span<T, Size> fixed_last(std::span<T, Extent> src) {
-        static_assert(Size != std::dynamic_extent, "Size cannot use std::dynamic_extent");
+    template <size_t Count, class T, size_t Extent>
+    constexpr std::span<T, Count> fixed_last(std::span<T, Extent> src) {
+        static_assert(Count != std::dynamic_extent, "Count cannot use std::dynamic_extent");
         static_assert(Extent != std::dynamic_extent, "Source Extent must be fixed length");
-        static_assert(Extent >= Size, "Source length is insufficient");
+        static_assert(Extent >= Count, "Source length is insufficient");
 
-        return src.template last<Size>();
+        return src.template last<Count>();
     }
 
-    template <size_t Offset, size_t Size, class T, size_t Extent>
-    constexpr std::span<T, Size> fixed_subspan(std::span<T, Extent> src) {
-        static_assert(Size != std::dynamic_extent, "Size cannot use std::dynamic_extent");
+    template <size_t Offset, size_t Count, class T, size_t Extent>
+    constexpr std::span<T, Count> fixed_subspan(std::span<T, Extent> src) {
+        static_assert(Count != std::dynamic_extent, "Count cannot use std::dynamic_extent");
         static_assert(Extent != std::dynamic_extent, "Source Extent must be fixed length");
-        static_assert(Extent >= (Offset + Size), "Source length is insufficient");
+        static_assert(Extent >= (Offset + Count), "Source length is insufficient");
 
-        return src.template subspan<Offset, Size>();
+        return src.template subspan<Offset, Count>();
     }
 
-    template <size_t Size, class T, size_t Extent>
-    constexpr std::optional<std::span<T, Size>> try_fixed(std::span<T, Extent> src) {
-        static_assert(Size != std::dynamic_extent, "Size cannot use std::dynamic_extent");
+    template <size_t Count, class T, size_t Extent>
+    constexpr std::optional<std::span<T, Count>> try_fixed(std::span<T, Extent> src) {
+        static_assert(Count != std::dynamic_extent, "Count cannot use std::dynamic_extent");
         static_assert(Extent == std::dynamic_extent, "Source Extent must be dynamic");
 
-        if (src.size() >= Size)
-            return src.template first<Size>();
+        if (src.size() >= Count)
+            return src.template first<Count>();
         else
             return std::nullopt;
     }
 
-    template <size_t Size, class T, size_t Extent>
-    constexpr std::optional<std::span<T, Size>> try_fixed_equal(std::span<T, Extent> src) {
-        static_assert(Size != std::dynamic_extent, "Size cannot use std::dynamic_extent");
+    template <size_t Count, class T, size_t Extent>
+    constexpr std::optional<std::span<T, Count>> try_fixed_equal(std::span<T, Extent> src) {
+        static_assert(Count != std::dynamic_extent, "Count cannot use std::dynamic_extent");
         static_assert(Extent == std::dynamic_extent, "Source Extent must be dynamic");
 
-        if (src.size() == Size)
-            return src.template first<Size>();
+        if (src.size() == Count)
+            return src.template first<Count>();
         else
             return std::nullopt;
     }
