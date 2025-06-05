@@ -155,8 +155,8 @@ namespace fquuid::detail
             u[0] = (load_u32_hex(fixed_subspan<0, 8>(s)) << 32 |
                     load_u16_hex(fixed_subspan<9, 4>(s)) << 16 |
                     load_u16_hex(fixed_subspan<14, 4>(s)));
-            u[1] = (load_u16_hex(fixed_subspan<19, 4>(s))) << 48 |
-                    load_u48_hex(fixed_subspan<24, 12>(s));
+            u[1] = (load_u16_hex(fixed_subspan<19, 4>(s)) << 48 |
+                    load_u48_hex(fixed_subspan<24, 12>(s)));
         }
 
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
