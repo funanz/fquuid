@@ -33,7 +33,7 @@ namespace fquuid
                 BCRYPT_USE_SYSTEM_PREFERRED_RNG);
 
             if (!NT_SUCCESS(status))
-                throw std::runtime_error("error: BCryptGenRandom()");
+                throw std::runtime_error("fquuid:uuid_bcrypt_gen_random: BCryptGenRandom failed");
 
             return r;
         }

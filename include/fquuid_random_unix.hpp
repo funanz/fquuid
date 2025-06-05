@@ -57,7 +57,7 @@ namespace fquuid
 
             file_ = fopen("/dev/urandom", "r");
             if (file_ == nullptr)
-                throw std::runtime_error("uuid_dev_urandom: can't open file");
+                throw std::runtime_error("fquuid:uuid_dev_urandom: can't open file");
         }
 
         void close() {
@@ -74,7 +74,7 @@ namespace fquuid
             result_type r;
             auto ret = fread(&r, sizeof(r), 1, file_);
             if (ret == 0)
-                throw std::runtime_error("uuid_dev_urandom: read error");
+                throw std::runtime_error("fquuid:uuid_dev_urandom: read error");
             return r;
         }
 

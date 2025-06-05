@@ -49,7 +49,7 @@ namespace fquuid::detail
                 u[0] = load_u64(fixed_subspan<0, 8>(*fixed));
                 u[1] = load_u64(fixed_subspan<8, 8>(*fixed));
             } else {
-                throw std::invalid_argument("uuid:load_from_bytes: input span size is small");
+                throw std::invalid_argument("fquuid:load_from_bytes: input span size insufficient");
             }
         }
 
@@ -58,7 +58,7 @@ namespace fquuid::detail
                 store_u64(u[0], fixed_subspan<0, 8>(*fixed));
                 store_u64(u[1], fixed_subspan<8, 8>(*fixed));
             } else {
-                throw std::invalid_argument("uuid:store_to_bytes: output span size is small");
+                throw std::invalid_argument("fquuid:store_to_bytes: output span size insufficient");
             }
         }
     };

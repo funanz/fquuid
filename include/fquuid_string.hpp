@@ -49,7 +49,7 @@ namespace fquuid::detail
                          hex_to_u4(fixed_at<3>(s)));
 
             if (u16e >> 16)
-                throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
+                throw std::invalid_argument("fquuid:parse: invalid hexadecimal character");
             else
                 return u16e;
         }
@@ -65,7 +65,7 @@ namespace fquuid::detail
                          hex_to_u4(fixed_at<7>(s)));
 
             if (u32e >> 32)
-                throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
+                throw std::invalid_argument("fquuid:parse: invalid hexadecimal character");
             else
                 return u32e;
         }
@@ -85,7 +85,7 @@ namespace fquuid::detail
                          hex_to_u4(fixed_at<11>(s)));
 
             if (u48e >> 48)
-                throw std::invalid_argument("invalid hex character [0-9a-fA-F]");
+                throw std::invalid_argument("fquuid:parse: invalid hexadecimal character");
             else
                 return u48e;
         }
@@ -150,7 +150,7 @@ namespace fquuid::detail
         // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
         static constexpr void parse_standard_format(uuid_u64& u, std::span<const CharT, 36> s) {
             if (!has_dashes(s))
-                throw std::invalid_argument("uuid::parse() invalid UUID format");
+                throw std::invalid_argument("fquuid:parse: invalid UUID format");
 
             u[0] = (load_u32_hex(fixed_subspan<0, 8>(s)) << 32 |
                     load_u16_hex(fixed_subspan<9, 4>(s)) << 16 |
@@ -188,12 +188,12 @@ namespace fquuid::detail
             else if (auto fixed = try_fixed_equal<32>(trimmed))
                 parse_hex_format(u, *fixed);
             else
-                throw std::invalid_argument("uuid:parse: invalid UUID string length");
+                throw std::invalid_argument("fquuid:parse: invalid UUID string length");
         }
 
         static constexpr void parse(uuid_u64& u, const CharT* s) {
             if (s == nullptr)
-                throw std::invalid_argument("uuid:parse: argument is nullptr");
+                throw std::invalid_argument("fquuid:parse: argument is nullptr");
 
             parse(u, std::basic_string_view<CharT>(s));
         }
@@ -204,13 +204,13 @@ namespace fquuid::detail
                     write_standard_format(u, fixed_first<36>(*fixed));
                     fixed_back(*fixed) = 0;
                 } else {
-                    throw std::invalid_argument("uuid:write: output span size is small");
+                    throw std::invalid_argument("fquuid:write: output span size insufficient");
                 }
             } else {
                 if (auto fixed = try_fixed<36>(s)) {
                     write_standard_format(u, *fixed);
                 } else {
-                    throw std::invalid_argument("uuid:write: output span size is small");
+                    throw std::invalid_argument("fquuid:write: output span size insufficient");
                 }
             }
         }
