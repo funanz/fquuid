@@ -52,13 +52,14 @@ namespace fquuid::detail
         return src.template last<Count>();
     }
 
-    template <size_t Offset, size_t Count, class T, size_t Extent>
-    constexpr std::span<T, Count> fixed_subspan(std::span<T, Extent> src) {
-        static_assert(Count != std::dynamic_extent, "Count cannot use std::dynamic_extent");
+    template <size_t Offset, size_t Count = std::dynamic_extent, class T, size_t Extent>
+    constexpr auto fixed_subspan(std::span<T, Extent> src) {
         static_assert(Extent != std::dynamic_extent, "Source Extent must be fixed length");
-        static_assert(Extent >= (Offset + Count), "Source length is insufficient");
+        static_assert(Extent >= Offset, "Offset is out of range");
+        constexpr size_t Size = (Count == std::dynamic_extent) ? Extent - Offset : Count;
+        static_assert(Extent - Offset >= Size, "Source length is insufficient");
 
-        return src.template subspan<Offset, Count>();
+        return src.template subspan<Offset, Size>();
     }
 
     template <size_t Count, class T, size_t Extent>
