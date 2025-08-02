@@ -66,6 +66,7 @@ Using the latest boost
 # Example
 
 ```C++
+#include <cstdint>
 #include <fquuid.hpp>
 #include <map>
 #include <string>
@@ -94,10 +95,11 @@ void example()
 
     // string
     std::string s = x.to_string();
+    std::u8string u8s = x.to_string<std::u8string>();
 
     // bytes
-    std::array<uint8_t, 16> a;
-    x.to_bytes(a);
+    std::array<std::byte, 16> a = x.to_bytes();
+    std::array<uint8_t, 16> u8a = x.to_bytes<uint8_t>();
 }
 ```
 
