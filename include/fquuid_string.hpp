@@ -198,17 +198,19 @@ namespace fquuid::detail
             parse(u, std::basic_string_view<CharT>(s));
         }
 
-        static constexpr void write(const uuid_u64& u, std::span<CharT> s, string_terminator term) {
+        static constexpr size_t write(const uuid_u64& u, std::span<CharT> s, string_terminator term) {
             if (term == string_terminator::null) {
                 if (auto fixed = try_fixed<37>(s)) {
                     write_standard_format(u, fixed_first<36>(*fixed));
                     fixed_back(*fixed) = 0;
+                    return fixed->size();
                 } else {
                     throw std::invalid_argument("fquuid:write: output span size insufficient");
                 }
             } else {
                 if (auto fixed = try_fixed<36>(s)) {
                     write_standard_format(u, *fixed);
+                    return fixed->size();
                 } else {
                     throw std::invalid_argument("fquuid:write: output span size insufficient");
                 }

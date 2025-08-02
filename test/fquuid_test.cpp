@@ -323,7 +323,8 @@ static void test_string()
     constexpr auto s2_array = [&] {
         std::array<CharT, 40> buf;
         std::ranges::fill(buf, S('*'));
-        a.write_string(buf);
+        auto wrote = a.write_string(buf);
+        runtime_assert(wrote == 37, "test_string() #1");
         return buf;
     }();
     String s2(s2_array.data());
@@ -331,16 +332,17 @@ static void test_string()
     constexpr auto s3_array = [&] {
         std::array<CharT, 40> buf;
         std::ranges::fill(buf, S('*'));
-        a.write_string(buf, string_terminator::none);
+        auto wrote = a.write_string(buf, string_terminator::none);
+        runtime_assert(wrote == 36, "test_string() #2");
         return buf;
     }();
     String s3(s3_array.data(), s3_array.size());
 
-    runtime_assert(s1 == S("d604557f-6739-4883-b627-bc0a81b84e97"), "test_string() #1");
-    runtime_assert(s2 == S("d604557f-6739-4883-b627-bc0a81b84e97"), "test_string() #2");
-    runtime_assert(s3 == S("d604557f-6739-4883-b627-bc0a81b84e97****"), "test_string() #3");
-    static_assert(s2_array.size() == 40, "test_string() #4");
-    static_assert(s3_array.size() == 40, "test_string() #5");
+    runtime_assert(s1 == S("d604557f-6739-4883-b627-bc0a81b84e97"), "test_string() #3");
+    runtime_assert(s2 == S("d604557f-6739-4883-b627-bc0a81b84e97"), "test_string() #4");
+    runtime_assert(s3 == S("d604557f-6739-4883-b627-bc0a81b84e97****"), "test_string() #5");
+    static_assert(s2_array.size() == 40, "test_string() #6");
+    static_assert(s3_array.size() == 40, "test_string() #7");
 }
 
 static void test_string_error()
@@ -414,15 +416,16 @@ void test_binary_impl()
 
     constexpr auto bytes_b = [&] {
         std::array<ByteT, 16> bytes;
-        a.write_bytes(bytes);
+        auto wrote = a.write_bytes(bytes);
+        runtime_assert(wrote == 16, "test_binary_impl() #1");
         return bytes;
     }();
 
     constexpr auto bytes_c = a.to_bytes<ByteT>();
 
-    static_assert(a == b, "test_binary_impl() #1");
-    static_assert(bytes_a == bytes_b, "test_binary_impl() #2");
-    static_assert(bytes_a == bytes_c, "test_binary_impl() #3");
+    static_assert(a == b, "test_binary_impl() #2");
+    static_assert(bytes_a == bytes_b, "test_binary_impl() #3");
+    static_assert(bytes_a == bytes_c, "test_binary_impl() #4");
 }
 
 static void test_binary()

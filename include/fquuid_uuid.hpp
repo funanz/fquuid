@@ -92,24 +92,24 @@ namespace fquuid
             return (u_[0] >> 12) & 0xf;
         }
 
-        constexpr void write_string(std::span<char> s, string_terminator term = string_terminator::null) const {
-            detail::uuid_string::write(u_, s, term);
+        constexpr size_t write_string(std::span<char> s, string_terminator term = string_terminator::null) const {
+            return detail::uuid_string::write(u_, s, term);
         }
 
-        constexpr void write_string(std::span<wchar_t> s, string_terminator term = string_terminator::null) const {
-            detail::uuid_wstring::write(u_, s, term);
+        constexpr size_t write_string(std::span<wchar_t> s, string_terminator term = string_terminator::null) const {
+            return detail::uuid_wstring::write(u_, s, term);
         }
 
-        constexpr void write_string(std::span<char8_t> s, string_terminator term = string_terminator::null) const {
-            detail::uuid_u8string::write(u_, s, term);
+        constexpr size_t write_string(std::span<char8_t> s, string_terminator term = string_terminator::null) const {
+            return detail::uuid_u8string::write(u_, s, term);
         }
 
-        constexpr void write_string(std::span<char16_t> s, string_terminator term = string_terminator::null) const {
-            detail::uuid_u16string::write(u_, s, term);
+        constexpr size_t write_string(std::span<char16_t> s, string_terminator term = string_terminator::null) const {
+            return detail::uuid_u16string::write(u_, s, term);
         }
 
-        constexpr void write_string(std::span<char32_t> s, string_terminator term = string_terminator::null) const {
-            detail::uuid_u32string::write(u_, s, term);
+        constexpr size_t write_string(std::span<char32_t> s, string_terminator term = string_terminator::null) const {
+            return detail::uuid_u32string::write(u_, s, term);
         }
 
         template <class String = std::string>
@@ -121,12 +121,12 @@ namespace fquuid
             return s;
         }
 
-        constexpr void write_bytes(std::span<uint8_t> bytes) const {
-            detail::uuid_binary_u8::store_to_bytes(u_, bytes);
+        constexpr size_t write_bytes(std::span<uint8_t> bytes) const {
+            return detail::uuid_binary_u8::store_to_bytes(u_, bytes);
         }
 
-        constexpr void write_bytes(std::span<std::byte> bytes) const {
-            detail::uuid_binary_byte::store_to_bytes(u_, bytes);
+        constexpr size_t write_bytes(std::span<std::byte> bytes) const {
+            return detail::uuid_binary_byte::store_to_bytes(u_, bytes);
         }
 
         template <ByteLike ByteT = std::byte>

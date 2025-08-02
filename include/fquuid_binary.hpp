@@ -53,10 +53,11 @@ namespace fquuid::detail
             }
         }
 
-        static constexpr void store_to_bytes(const uuid_u64& u, std::span<ByteT> bytes) {
+        static constexpr size_t store_to_bytes(const uuid_u64& u, std::span<ByteT> bytes) {
             if (auto fixed = try_fixed<16>(bytes)) {
                 store_u64(u[0], fixed_subspan<0, 8>(*fixed));
                 store_u64(u[1], fixed_subspan<8, 8>(*fixed));
+                return fixed->size();
             } else {
                 throw std::invalid_argument("fquuid:store_to_bytes: output span size insufficient");
             }
