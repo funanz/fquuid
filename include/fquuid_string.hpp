@@ -148,7 +148,7 @@ namespace fquuid::detail
         }
 
         // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-        static constexpr void parse_standard_format(uuid_u64& u, std::span<const CharT, 36> s) {
+        static constexpr void parse_standard_format(uuid_u128& u, std::span<const CharT, 36> s) {
             if (!has_dashes(s))
                 throw std::invalid_argument("fquuid:parse: invalid UUID format");
 
@@ -160,13 +160,13 @@ namespace fquuid::detail
         }
 
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        static constexpr void parse_hex_format(uuid_u64& u, std::span<const CharT, 32> s) {
+        static constexpr void parse_hex_format(uuid_u128& u, std::span<const CharT, 32> s) {
             u[0] = load_u64_hex(fixed_subspan<0, 16>(s));
             u[1] = load_u64_hex(fixed_subspan<16, 16>(s));
         }
 
         // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-        static constexpr void write_standard_format(const uuid_u64& u, std::span<CharT, 36> s) {
+        static constexpr void write_standard_format(const uuid_u128& u, std::span<CharT, 36> s) {
             store_u32_hex(u[0] >> 32, fixed_subspan<0, 8>(s));
             store_u16_hex(u[0] >> 16, fixed_subspan<9, 4>(s));
             store_u16_hex(u[0],       fixed_subspan<14, 4>(s));
@@ -180,7 +180,7 @@ namespace fquuid::detail
         }
 
     public:
-        static constexpr void parse(uuid_u64& u, std::span<const CharT> s) {
+        static constexpr void parse(uuid_u128& u, std::span<const CharT> s) {
             auto trimmed = trim_braces(trim_null_terminator(s));
 
             if (auto fixed = try_fixed_equal<36>(trimmed))
@@ -191,14 +191,14 @@ namespace fquuid::detail
                 throw std::invalid_argument("fquuid:parse: invalid UUID string length");
         }
 
-        static constexpr void parse(uuid_u64& u, const CharT* s) {
+        static constexpr void parse(uuid_u128& u, const CharT* s) {
             if (s == nullptr)
                 throw std::invalid_argument("fquuid:parse: argument is nullptr");
 
             parse(u, std::basic_string_view<CharT>(s));
         }
 
-        static constexpr size_t write(const uuid_u64& u, std::span<CharT> s, string_terminator term) {
+        static constexpr size_t write(const uuid_u128& u, std::span<CharT> s, string_terminator term) {
             if (term == string_terminator::null) {
                 if (auto fixed = try_fixed<37>(s)) {
                     write_standard_format(u, fixed_first<36>(*fixed));

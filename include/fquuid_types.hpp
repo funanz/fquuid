@@ -9,7 +9,7 @@ namespace fquuid
 {
     namespace detail
     {
-        using uuid_u64 = std::array<uint64_t, 2>;
+        using uuid_u128 = std::array<uint64_t, 2>;
     }
 
     template <class ByteT>
