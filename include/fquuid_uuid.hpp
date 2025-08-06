@@ -72,17 +72,7 @@ namespace fquuid
             detail::uuid_binary_byte::load_from_bytes(u_, bytes);
         }
 
-        constexpr bool operator ==(const uuid& r) const noexcept {
-            return u_ == r.u_;
-        }
-
-        constexpr bool operator !=(const uuid& r) const noexcept {
-            return u_ != r.u_;
-        }
-
-        constexpr auto operator <=>(const uuid& r) const noexcept {
-            return u_ <=> r.u_;
-        }
+        constexpr auto operator <=>(const uuid&) const = default;
 
         constexpr bool is_nil() const noexcept {
             return u_[0] == 0 && u_[1] == 0;
