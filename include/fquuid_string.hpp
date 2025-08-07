@@ -152,26 +152,26 @@ namespace fquuid::detail
             if (!has_dashes(s))
                 throw std::invalid_argument("fquuid:parse: invalid UUID format");
 
-            u[0] = (load_u32_hex(fixed_subspan<0, 8>(s)) << 32 |
+            u.upper(load_u32_hex(fixed_subspan<0, 8>(s)) << 32 |
                     load_u16_hex(fixed_subspan<9, 4>(s)) << 16 |
                     load_u16_hex(fixed_subspan<14, 4>(s)));
-            u[1] = (load_u16_hex(fixed_subspan<19, 4>(s)) << 48 |
+            u.lower(load_u16_hex(fixed_subspan<19, 4>(s)) << 48 |
                     load_u48_hex(fixed_subspan<24, 12>(s)));
         }
 
         // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
         static constexpr void parse_hex_format(uuid_u128& u, std::span<const CharT, 32> s) {
-            u[0] = load_u64_hex(fixed_subspan<0, 16>(s));
-            u[1] = load_u64_hex(fixed_subspan<16, 16>(s));
+            u.upper(load_u64_hex(fixed_subspan<0, 16>(s)));
+            u.lower(load_u64_hex(fixed_subspan<16, 16>(s)));
         }
 
         // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
         static constexpr void write_standard_format(const uuid_u128& u, std::span<CharT, 36> s) {
-            store_u32_hex(u[0] >> 32, fixed_subspan<0, 8>(s));
-            store_u16_hex(u[0] >> 16, fixed_subspan<9, 4>(s));
-            store_u16_hex(u[0],       fixed_subspan<14, 4>(s));
-            store_u16_hex(u[1] >> 48, fixed_subspan<19, 4>(s));
-            store_u48_hex(u[1],       fixed_subspan<24, 12>(s));
+            store_u32_hex(u.upper() >> 32, fixed_subspan<0, 8>(s));
+            store_u16_hex(u.upper() >> 16, fixed_subspan<9, 4>(s));
+            store_u16_hex(u.upper(),       fixed_subspan<14, 4>(s));
+            store_u16_hex(u.lower() >> 48, fixed_subspan<19, 4>(s));
+            store_u48_hex(u.lower(),       fixed_subspan<24, 12>(s));
 
             fixed_at<8>(s) = '-';
             fixed_at<13>(s) = '-';

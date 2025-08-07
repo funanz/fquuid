@@ -75,11 +75,11 @@ namespace fquuid
         constexpr auto operator <=>(const uuid&) const = default;
 
         constexpr bool is_nil() const noexcept {
-            return u_[0] == 0 && u_[1] == 0;
+            return u_.is_nil();
         }
 
         constexpr uint8_t get_version() const noexcept {
-            return (u_[0] >> 12) & 0xf;
+            return u_.version();
         }
 
         constexpr size_t write_string(std::span<char> s, string_terminator term = string_terminator::null) const {
@@ -127,9 +127,9 @@ namespace fquuid
         }
 
         size_t hash() const noexcept {
-            std::hash<uint64_t> h;
+            std::hash<detail::uuid_u128::value_type> h;
 
-            return h(u_[0]) ^ h(u_[1]);
+            return h(u_.upper()) ^ h(u_.lower());
         }
     };
 

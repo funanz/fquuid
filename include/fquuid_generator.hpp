@@ -9,21 +9,6 @@
 
 namespace fquuid
 {
-    namespace detail
-    {
-        static void set_version(uuid_u128& u, uint64_t ver) {
-            u[0] = (u[0] & 0xffff'ffff'ffff'0fff) | ((ver & 0x0f) << 12);
-        }
-
-        static void set_variant(uuid_u128& u, uint64_t var) {
-            u[1] = (u[1] & 0x3fff'ffff'ffff'ffff) | ((var & 0x03) << 62);
-        }
-
-        static void set_unix_ts_ms(uuid_u128& u, int64_t ms) {
-            u[0] = (u[0] & 0x0000'0000'0000'ffff) | (ms << 16);
-        }
-    }
-
     class uuid_generator_v4
     {
         uuid_random rng_;
@@ -36,12 +21,10 @@ namespace fquuid
         template <class RNG>
         static uuid generate(RNG& rng) {
             std::uniform_int_distribution<uint64_t> dist64;
-            detail::uuid_u128 u;
-            u[0] = dist64(rng);
-            u[1] = dist64(rng);
 
-            detail::set_version(u, 4);
-            detail::set_variant(u, 0b10);
+            detail::uuid_u128 u { dist64(rng), dist64(rng) };
+            u.version(4);
+            u.variant(0b10);
 
             return uuid{u};
         }
@@ -65,13 +48,11 @@ namespace fquuid
         static uuid generate(RNG& rng, int64_t ms) {
             std::uniform_int_distribution<uint16_t> dist16;
             std::uniform_int_distribution<uint64_t> dist64;
-            detail::uuid_u128 u;
-            u[0] = dist16(rng);
-            u[1] = dist64(rng);
 
-            detail::set_unix_ts_ms(u, ms);
-            detail::set_version(u, 7);
-            detail::set_variant(u, 0b10);
+            detail::uuid_u128 u { dist16(rng), dist64(rng) };
+            u.unix_ts_ms(ms);
+            u.version(7);
+            u.variant(0b10);
 
             return uuid{u};
         }
