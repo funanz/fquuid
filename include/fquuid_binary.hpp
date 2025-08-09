@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <span>
 #include <stdexcept>
+#include <type_traits>
 #include "fquuid_types.hpp"
 #include "fquuid_spanner.hpp"
 
@@ -14,11 +15,17 @@ namespace fquuid::detail
     class uuid_basic_binary
     {
         static constexpr uint64_t to_u64(ByteT b) {
-            return static_cast<uint8_t>(b);
+            if constexpr (std::is_same_v<ByteT, std::byte>)
+                return std::to_integer<uint64_t>(b);
+            else
+                return static_cast<uint8_t>(b);
         }
 
         static constexpr ByteT to_byte(uint64_t x) {
-            return ByteT(static_cast<uint8_t>(x));
+            if constexpr (std::is_same_v<ByteT, std::byte>)
+                return static_cast<std::byte>(x);
+            else
+                return static_cast<uint8_t>(x);
         }
 
         static constexpr uint64_t load_u64(std::span<const ByteT, 8> bytes) {
